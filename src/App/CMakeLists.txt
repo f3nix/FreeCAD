@@ -12,6 +12,10 @@ IF(DOCDIR)
     add_definitions(-DDOCDIR="${DOCDIR}")
 ENDIF(DOCDIR)
 
+if(FREECAD_USE_QT5)
+    set(QT_QTXML_LIBRARY Qt5::Xml)
+endif(FREECAD_USE_QT5)
+
 include_directories(
     ${CMAKE_BINARY_DIR}/src
     ${CMAKE_SOURCE_DIR}/src

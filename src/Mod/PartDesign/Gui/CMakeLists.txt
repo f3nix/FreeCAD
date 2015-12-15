@@ -44,10 +44,21 @@ set(PartDesignGui_MOC_HDRS
     TaskScaledParameters.h
     TaskMultiTransformParameters.h
 )
-fc_wrap_cpp(PartDesignGui_MOC_SRCS ${PartDesignGui_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(PartDesignGui_MOC_SRCS ${PartDesignGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(PartDesignGui_MOC_SRCS ${PartDesignGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${PartDesignGui_MOC_SRCS})
 
-qt4_add_resources(PartDesignGui_SRCS Resources/PartDesign.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(PartDesignGui_SRCS Resources/PartDesign.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(PartDesignGui_SRCS Resources/PartDesign.qrc)
+endif(FREECAD_USE_QT5)
+
 
 set(PartDesignGui_UIC_SRCS
     FeaturePickDialog.ui
@@ -66,7 +77,12 @@ set(PartDesignGui_UIC_SRCS
     TaskScaledParameters.ui
     TaskMultiTransformParameters.ui
 )
-qt4_wrap_ui(PartDesignGui_UIC_HDRS ${PartDesignGui_UIC_SRCS})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(PartDesignGui_UIC_HDRS ${PartDesignGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(PartDesignGui_UIC_HDRS ${PartDesignGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
 
 SET(PartDesignGuiViewProvider_SRCS
     ViewProvider.cpp

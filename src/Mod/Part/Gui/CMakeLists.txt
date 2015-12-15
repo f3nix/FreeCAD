@@ -48,10 +48,20 @@ set(PartGui_MOC_HDRS
     TaskDimension.h
     TaskCheckGeometry.h
 )
-fc_wrap_cpp(PartGui_MOC_SRCS ${PartGui_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(PartGui_MOC_SRCS ${PartGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(PartGui_MOC_SRCS ${PartGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${PartGui_MOC_SRCS})
 
-qt4_add_resources(PartGui_QRC_SRCS Resources/Part.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(PartGui_QRC_SRCS Resources/Part.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(PartGui_QRC_SRCS Resources/Part.qrc)
+endif(FREECAD_USE_QT5)
 
 set(PartGui_UIC_SRCS
     CrossSections.ui
@@ -77,7 +87,12 @@ set(PartGui_UIC_SRCS
     TaskOffset.ui
     TaskSweep.ui
 )
-qt4_wrap_ui(PartGui_UIC_HDRS ${PartGui_UIC_SRCS})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(PartGui_UIC_HDRS ${PartGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(PartGui_UIC_HDRS ${PartGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
 
 SET(PartGui_SRCS
     ${PartGui_QRC_SRCS}

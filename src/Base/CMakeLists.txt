@@ -4,6 +4,10 @@ if(WIN32)
     add_definitions(-DBOOST_DYN_LINK)
 endif(WIN32)
 
+if(FREECAD_USE_QT5)
+    set(QT_QTCORE_LIBRARY Qt5::Core Qt5::Concurrent)
+endif(FREECAD_USE_QT5)
+
 include_directories(
     ${CMAKE_BINARY_DIR}/src
     ${CMAKE_SOURCE_DIR}/src
@@ -152,7 +156,12 @@ set(FreeCADBase_MOC_HDRS
     Debugger.h
     FutureWatcherProgress.h
 )
-fc_wrap_cpp(FreeCADBase_MOC_SRCS ${FreeCADBase_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(FreeCADBase_MOC_SRCS ${FreeCADBase_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(FreeCADBase_MOC_SRCS ${FreeCADBase_MOC_HDRS})
+endif(FREECAD_USE_QT5)
 
 SET(FreeCADBase_UNITAPI_SRCS
     UnitsApi.cpp

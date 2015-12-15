@@ -13,13 +13,24 @@ set(TestGui_LIBS
 set(Test_MOC_HDRS
     UnitTestImp.h
 )
-fc_wrap_cpp(Test_MOC_SRCS ${Test_MOC_HDRS})
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(Test_MOC_SRCS ${Test_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(Test_MOC_SRCS ${Test_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${Test_MOC_SRCS})
 
 set(Dialogs_UIC_SRCS
     UnitTest.ui
 )
-qt4_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+endif(FREECAD_USE_QT5)
+
 SET(Dialogs_SRCS
     ${Dialogs_UIC_HDRS}
     UnitTest.ui
@@ -30,7 +41,12 @@ SET(Dialogs_SRCS
 )
 SOURCE_GROUP("Dialogs" FILES ${Dialogs_SRCS})
 
-qt4_add_resources(Resource_SRCS Resources/Test.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(Resource_SRCS Resources/Test.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(Resource_SRCS Resources/Test.qrc)
+endif(FREECAD_USE_QT5)
+
 SET(Resource_SRCS
     ${Resource_SRCS}
     Resources/Test.qrc

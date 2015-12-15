@@ -60,7 +60,13 @@ set(FemGui_MOC_HDRS
     TaskDlgAnalysis.h
     TaskDlgMeshShapeNetgen.h
 )
-fc_wrap_cpp(FemGui_MOC_SRCS ${FemGui_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(FemGui_MOC_SRCS ${FemGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(FemGui_MOC_SRCS ${FemGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${FemGui_MOC_SRCS})
 
 set(FemGui_UIC_SRCS
@@ -77,7 +83,13 @@ set(FemGui_UIC_SRCS
     TaskAnalysisInfo.ui
     TaskDriver.ui
 )
-qt4_wrap_ui(FemGui_UIC_HDRS ${FemGui_UIC_SRCS})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(FemGui_UIC_HDRS ${FemGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(FemGui_UIC_HDRS ${FemGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
+
 
 SET(FemGui_DLG_SRCS
     ${FemGui_UIC_HDRS}
@@ -109,7 +121,11 @@ SET(FemGui_DLG_SRCS
 )
 SOURCE_GROUP("Constraint-Dialogs" FILES ${FemGui_DLG_SRCS})
 
-qt4_add_resources(FemResource_SRCS Resources/Fem.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(FemResource_SRCS Resources/Fem.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(FemResource_SRCS Resources/Fem.qrc)
+endif(FREECAD_USE_QT5)
 
 SOURCE_GROUP("Resources" FILES ${FemResource_SRCS})
 

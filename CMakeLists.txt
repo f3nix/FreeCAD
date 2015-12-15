@@ -209,6 +209,8 @@ if(NOT MSVC)
     OPTION(FREECAD_USE_PCL "Build the features that use PCL libs" OFF)
 endif(NOT MSVC)
 
+OPTION(FREECAD_USE_QT5 "Use Qt5 instead of Qt4" OFF)
+
 # if this is set override some options
 if (FREECAD_BUILD_DEBIAN)
     set(FREECAD_USE_EXTERNAL_ZIPIOS ON)
@@ -679,7 +681,35 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 # -------------------------------- Qt --------------------------------
 
 # sets ${QT_LIBRARIES}
+if(FREECAD_USE_QT5)
+    set(Qt5_components Widgets Xml OpenGL UiTools PrintSupport Concurrent Network Svg WebKit WebKitWidgets)
+    find_package(Qt5 REQUIRED COMPONENTS ${Qt5_components})
 
+
+    set(QT_INCLUDE_DIR ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Xml_INCLUDE_DIRS} ${Qt5WebKitWidgets_INCLUDE_DIRS})
+    foreach(component ${Qt5_components})
+        set(QT_LIBRARIES ${QT_LIBRARIES} Qt5::${component})
+    endforeach(component)
+
+    message("Using Qt5!!!")
+
+    macro(fc_qt5_wrap_cpp outfiles)
+        # get include dirs
+        qt5_get_moc_flags(moc_flags)
+        set(moc_files ${ARGN})
+           #QT4_EXTRACT_OPTIONS(moc_files moc_options moc_target ${ARGN})
+           # fixes bug 0000585: bug with boost 1.48
+           set(moc_options ${moc_options} -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED)
+
+           foreach(it ${moc_files})
+               get_filename_component(it ${it} ABSOLUTE)
+               qt5_make_output_file(${it} moc_ cpp outfile)
+               qt5_create_moc_command(${it} ${outfile} "${moc_flags}" "${moc_options}" "${moc_target}")
+               set(${outfiles} ${${outfiles}} ${outfile})
+               add_file_dependencies(${it} ${outfile})
+           endforeach(it)
+    endmacro(fc_qt5_wrap_cpp)
+else(FREECAD_USE_QT5)
     SET(QT_MIN_VERSION 4.5.0)
     set(QT_USE_QTNETWORK TRUE)
     set(QT_USE_QTXML TRUE)
@@ -731,6 +761,7 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             add_file_dependencies(${it} ${outfile})
         endforeach(it)
     endmacro(fc_wrap_cpp)
+endif(FREECAD_USE_QT5)
 
 #--------------------FreeType-----------------------
 

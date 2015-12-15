@@ -13,7 +13,11 @@ set(CompleteGui_LIBS
     FreeCADGui
 )
 
-qt4_add_resources(Complete_QRC_SRCS Resources/Complete.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(Complete_QRC_SRCS Resources/Complete.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(Complete_QRC_SRCS Resources/Complete.qrc)
+endif(FREECAD_USE_QT5)
 
 SET(CompleteGui_SRCS
     ${Complete_QRC_SRCS}

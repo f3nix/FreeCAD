@@ -26,7 +26,11 @@ set(PathGui_LIBS
     FreeCADGui
 )
 
-qt4_add_resources(PathResource_SRCS Resources/Path.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(PathResource_SRCS Resources/Path.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(PathResource_SRCS Resources/Path.qrc)
+endif(FREECAD_USE_QT5)
 
 SOURCE_GROUP("Resources" FILES ${PathResource_SRCS})
 
@@ -35,7 +39,11 @@ set(PathGui_MOC_HDRS
     TaskDlgPathCompound.h
     DlgProcessorChooser.h
 )
-fc_wrap_cpp(PathGui_MOC_SRCS ${PathGui_MOC_HDRS})
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(PathGui_MOC_SRCS ${PathGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(PathGui_MOC_SRCS ${PathGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
 
 SOURCE_GROUP("Moc" FILES ${PathGui_MOC_SRCS})
 
@@ -44,7 +52,11 @@ set(PathGui_UIC_SRCS
     TaskDlgPathCompound.ui
     DlgProcessorChooser.ui
 )
-qt4_wrap_ui(PathGui_UIC_HDRS ${PathGui_UIC_SRCS})
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(PathGui_UIC_HDRS ${PathGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(PathGui_UIC_HDRS ${PathGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
 
 SET(PathGui_SRCS_Module
     Command.cpp
