@@ -26,7 +26,12 @@ set(RobotGui_LIBS
     FreeCADGui
 )
 
-qt4_add_resources(RobotResource_SRCS Resources/Robot.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(RobotResource_SRCS Resources/Robot.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(RobotResource_SRCS Resources/Robot.qrc)
+endif(FREECAD_USE_QT5)
+
 
 SOURCE_GROUP("Resources" FILES ${RobotResource_SRCS})
 
@@ -40,7 +45,11 @@ set(RobotGui_UIC_SRCS
     TaskTrajectoryDressUpParameter.ui
 )
 
-qt4_wrap_ui(RobotGui_UIC_HDRS ${RobotGui_UIC_SRCS})
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(RobotGui_UIC_HDRS ${RobotGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(RobotGui_UIC_HDRS ${RobotGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
 
 set(RobotGui_MOC_HDRS
     TaskTrajectory.h
@@ -56,7 +65,12 @@ set(RobotGui_MOC_HDRS
     TaskTrajectoryDressUpParameter.h
     TaskWatcher.h
 )
-fc_wrap_cpp(RobotGui_MOC_SRCS ${RobotGui_MOC_HDRS})
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(RobotGui_MOC_SRCS ${RobotGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(RobotGui_MOC_SRCS ${RobotGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Qt" FILES ${PartDesignGui_MOC_SRCS})
 
 

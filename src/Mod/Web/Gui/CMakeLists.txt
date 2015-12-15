@@ -12,7 +12,11 @@ set(WebGui_LIBS
     FreeCADGui
 )
 
-qt4_add_resources(Web_QRC_SRCS Resources/Web.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(Web_QRC_SRCS Resources/Web.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(Web_QRC_SRCS Resources/Web.qrc)
+endif(FREECAD_USE_QT5)
 
 SET(WebGui_SRCS
     ${Web_QRC_SRCS}
@@ -29,7 +33,13 @@ SET(WebGui_SRCS
 set(WebGui_MOC_HDRS
     BrowserView.h
 )
-fc_wrap_cpp(WebGui_MOC_SRCS ${WebGui_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(WebGui_MOC_SRCS ${WebGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(WebGui_MOC_SRCS ${WebGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${SketcherGui_MOC_SRCS})
 
 add_library(WebGui SHARED ${WebGui_SRCS})

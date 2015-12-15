@@ -40,10 +40,21 @@ generate_from_py2(FreeCADpov FreeCADpov.h)
 set(RaytracingGui_MOC_HDRS
     DlgSettingsRayImp.h
 )
-fc_wrap_cpp(RaytracingGui_MOC_SRCS ${RaytracingGui_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(RaytracingGui_MOC_SRCS ${RaytracingGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(RaytracingGui_MOC_SRCS ${RaytracingGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${RaytracingGui_MOC_SRCS})
 
-qt4_add_resources(Resource_SRCS Resources/Raytracing.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(Resource_SRCS Resources/Raytracing.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(Resource_SRCS Resources/Raytracing.qrc)
+endif(FREECAD_USE_QT5)
+
 SET(Resource_SRCS
     ${Resource_SRCS}
     Resources/Raytracing.qrc
@@ -53,7 +64,12 @@ SOURCE_GROUP("Resource" FILES ${Resource_SRCS})
 set(RaytracingGui_UIC_SRCS
     DlgSettingsRay.ui
 )
-qt4_wrap_ui(RaytracingGui_UIC_HDRS ${RaytracingGui_UIC_SRCS})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(RaytracingGui_UIC_HDRS ${RaytracingGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(RaytracingGui_UIC_HDRS ${RaytracingGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
 
 SET(RaytracingGui_SRCS
     ${Resource_SRCS}

@@ -32,7 +32,12 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/moc_qtcolorpicker-internal
 
 set_property(SOURCE qtcolorpicker.cpp APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/moc_qtcolorpicker-internal.cpp)
 
-fc_wrap_cpp(SpreadsheetGui_MOC_SRCS ${SpreadsheetGui_MOC_HDRS})
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(SpreadsheetGui_MOC_SRCS ${SpreadsheetGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(SpreadsheetGui_MOC_SRCS ${SpreadsheetGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${SpreadsheetGui_MOC_SRCS})
 
 
@@ -40,14 +45,22 @@ SET(SpreadsheetGui_RES_SRCS
     Resources/Spreadsheet.qrc
 )
 
-qt4_add_resources(SpreadsheetGui_QRC_SRCS ${SpreadsheetGui_RES_SRCS})
+if(FREECAD_USE_QT5)
+    qt5_add_resources(SpreadsheetGui_QRC_SRCS ${SpreadsheetGui_RES_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_add_resources(SpreadsheetGui_QRC_SRCS ${SpreadsheetGui_RES_SRCS})
+endif(FREECAD_USE_QT5)
 
 set(SpreadsheetGui_UIC_SRCS
    Sheet.ui
    PropertiesDialog.ui
 )
 
-qt4_wrap_ui(SpreadsheetGui_UIC_HDRS ${SpreadsheetGui_UIC_SRCS})
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(SpreadsheetGui_UIC_HDRS ${SpreadsheetGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(SpreadsheetGui_UIC_HDRS ${SpreadsheetGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
 
 SET(SpreadsheetGui_SRCS
 #   ${SpreadsheetGui_MOC_SRCS}

@@ -17,7 +17,14 @@ set(Web_LIBS
 set(Web_MOC_HDRS
     Server.h
 )
-fc_wrap_cpp(Web_MOC_SRCS ${Web_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(Web_MOC_SRCS ${Web_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(Web_MOC_SRCS ${Web_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
+
 SOURCE_GROUP("Moc" FILES ${Web_MOC_SRCS})
 
 SET(Web_SRCS

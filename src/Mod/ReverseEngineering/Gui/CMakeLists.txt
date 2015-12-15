@@ -23,20 +23,36 @@ set(ReenGui_LIBS
     FreeCADGui
 )
 
-qt4_add_resources(ReenGui_QRC_SRCS Resources/ReverseEngineering.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(ReenGui_QRC_SRCS Resources/ReverseEngineering.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(ReenGui_QRC_SRCS Resources/ReverseEngineering.qrc)
+endif(FREECAD_USE_QT5)
 
 set(ReenGui_MOC_HDRS
     FitBSplineSurface.h
     Poisson.h
 )
-fc_wrap_cpp(ReenGui_MOC_SRCS ${ReenGui_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(ReenGui_MOC_SRCS ${ReenGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(ReenGui_MOC_SRCS ${ReenGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${ReenGui_MOC_SRCS})
 
 set(Dialogs_UIC_SRCS
     FitBSplineSurface.ui
     Poisson.ui
 )
-qt4_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+endif(FREECAD_USE_QT5)
+
 SET(Dialogs_SRCS
     ${Dialogs_UIC_HDRS}
     ${Dialogs_UIC_SRCS}

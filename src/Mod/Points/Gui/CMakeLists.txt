@@ -21,13 +21,24 @@ set(PointsGui_LIBS
 set(PointsGui_MOC_HDRS
     DlgPointsReadImp.h
 )
-fc_wrap_cpp(PointsGui_MOC_SRCS ${PointsGui_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(PointsGui_MOC_SRCS ${PointsGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(PointsGui_MOC_SRCS ${PointsGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${PointsGui_MOC_SRCS})
 
 set(Dialog_UIC_SRCS
     DlgPointsRead.ui
 )
-qt4_wrap_ui(Dialogs_UIC_HDRS ${Dialog_UIC_SRCS})
+if(FREECAD_USE_QT5)
+  qt5_wrap_ui(Dialogs_UIC_HDRS ${Dialog_UIC_SRCS})
+else(FREECAD_USE_QT5)
+  qt4_wrap_ui(Dialogs_UIC_HDRS ${Dialog_UIC_SRCS})
+endif(FREECAD_USE_QT5)
+
 SET(Dialogs_SRCS
     ${Dialogs_UIC_HDRS}
     DlgPointsRead.ui
@@ -36,7 +47,12 @@ SET(Dialogs_SRCS
 )
 SOURCE_GROUP("Dialogs" FILES ${Dialogs_SRCS})
 
-qt4_add_resources(Resource_SRCS Resources/Points.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(Resource_SRCS Resources/Points.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(Resource_SRCS Resources/Points.qrc)
+endif(FREECAD_USE_QT5)
+
 SET(Resource_SRCS
     ${Resource_SRCS}
     Resources/Points.qrc

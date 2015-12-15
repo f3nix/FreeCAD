@@ -41,10 +41,20 @@ set(SketcherGui_MOC_HDRS
     SketchRectangularArrayDialog.h
     PropertyConstraintListItem.h
 )
-fc_wrap_cpp(SketcherGui_MOC_SRCS ${SketcherGui_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(SketcherGui_MOC_SRCS ${SketcherGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(SketcherGui_MOC_SRCS ${SketcherGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${SketcherGui_MOC_SRCS})
 
-qt4_add_resources(SketcherGui_SRCS Resources/Sketcher.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(SketcherGui_SRCS Resources/Sketcher.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(SketcherGui_SRCS Resources/Sketcher.qrc)
+endif(FREECAD_USE_QT5)
 
 set(SketcherGui_UIC_SRCS
     TaskSketcherConstrains.ui
@@ -59,7 +69,12 @@ set(SketcherGui_UIC_SRCS
     SketcherSettings.ui
     SketchRectangularArrayDialog.ui
 )
-qt4_wrap_ui(SketcherGui_UIC_HDRS ${SketcherGui_UIC_SRCS})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(SketcherGui_UIC_HDRS ${SketcherGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(SketcherGui_UIC_HDRS ${SketcherGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
 
 SET(SketcherGui_SRCS
     ${SketcherGui_SRCS}
