@@ -427,6 +427,14 @@ Action * StdCmdWindowsMenu::createAction(void)
     for ( int i=0; i<10; i++ ) {
         QAction* window = pcAction->addAction(QObject::tr(sToolTipText));
         window->setCheckable(true);
+#if QT_VERSION >= 0x050000
+        window->setToolTip(QCoreApplication::translate(
+            this->className(), sToolTipText, 0));
+        window->setStatusTip(QCoreApplication::translate(
+            this->className(), sStatusTip, 0));
+        window->setWhatsThis(QCoreApplication::translate(
+            this->className(), sWhatsThis, 0));
+#else
         window->setToolTip(QCoreApplication::translate(
             this->className(), sToolTipText, 0,
             QCoreApplication::CodecForTr));
@@ -436,6 +444,7 @@ Action * StdCmdWindowsMenu::createAction(void)
         window->setWhatsThis(QCoreApplication::translate(
             this->className(), sWhatsThis, 0,
             QCoreApplication::CodecForTr));
+#endif
     }
 
     QAction* sep = pcAction->addAction(QLatin1String(""));

@@ -195,6 +195,14 @@ Action * StdCmdAbout::createAction(void)
 
     QString exe = qApp->applicationName();
     pcAction = new Action(this,getMainWindow());
+#if QT_VERSION >= 0x050000
+    pcAction->setText(QCoreApplication::translate(
+        this->className(), sMenuText, 0).arg(exe));
+    pcAction->setToolTip(QCoreApplication::translate(
+        this->className(), sToolTipText, 0).arg(exe));
+    pcAction->setStatusTip(QCoreApplication::translate(
+        this->className(), sStatusTip, 0).arg(exe));
+#else
     pcAction->setText(QCoreApplication::translate(
         this->className(), sMenuText, 0,
         QCoreApplication::CodecForTr).arg(exe));
@@ -204,6 +212,7 @@ Action * StdCmdAbout::createAction(void)
     pcAction->setStatusTip(QCoreApplication::translate(
         this->className(), sStatusTip, 0,
         QCoreApplication::CodecForTr).arg(exe));
+#endif
     pcAction->setWhatsThis(QLatin1String(sWhatsThis));
     pcAction->setIcon(QApplication::windowIcon());
     pcAction->setShortcut(QString::fromLatin1(sAccel));
@@ -232,6 +241,14 @@ void StdCmdAbout::languageChange()
 {
     if (_pcAction) {
         QString exe = qApp->applicationName();
+#if QT_VERSION >= 0x050000
+        _pcAction->setText(QCoreApplication::translate(
+            this->className(), sMenuText, 0).arg(exe));
+        _pcAction->setToolTip(QCoreApplication::translate(
+            this->className(), sToolTipText, 0).arg(exe));
+        _pcAction->setStatusTip(QCoreApplication::translate(
+            this->className(), sStatusTip, 0).arg(exe));
+#else
         _pcAction->setText(QCoreApplication::translate(
             this->className(), sMenuText, 0,
             QCoreApplication::CodecForTr).arg(exe));
@@ -241,6 +258,7 @@ void StdCmdAbout::languageChange()
         _pcAction->setStatusTip(QCoreApplication::translate(
             this->className(), sStatusTip, 0,
             QCoreApplication::CodecForTr).arg(exe));
+#endif
         _pcAction->setWhatsThis(QLatin1String(sWhatsThis));
     }
 }
