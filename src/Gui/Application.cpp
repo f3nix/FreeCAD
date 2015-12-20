@@ -1415,6 +1415,35 @@ bool Application::runPythonCode(const char* cmd, bool gui, bool pyexc)
 typedef void (*_qt_msg_handler_old)(QtMsgType type, const char *msg);
 _qt_msg_handler_old old_qtmsg_handler = 0;
 
+#if QT_VERSION >= 0x050000
+void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+#ifdef FC_DEBUG
+    switch (type)
+    {
+    case QtDebugMsg:
+        Base::Console().Message("%s\n", msg.toLatin1().constData());
+        break;
+    case QtInfoMsg:
+        Base::Console().Message("%s\n", msg.toLatin1().constData());
+        break;
+    case QtWarningMsg:
+        Base::Console().Warning("%s\n", msg.toLatin1().constData());
+        break;
+    case QtCriticalMsg:
+        Base::Console().Error("%s\n", msg.toLatin1().constData());
+        break;
+    case QtFatalMsg:
+        Base::Console().Error("%s\n", msg.toLatin1().constData());
+        abort();                    // deliberately core dump
+    }
+
+#else
+    // do not stress user with Qt internals but write to log file if enabled
+    Base::Console().Log("%s\n", msg.toLatin1().constData());
+#endif
+}
+#else
 void messageHandler(QtMsgType type, const char *msg)
 {
 #ifdef FC_DEBUG
@@ -1442,6 +1471,7 @@ void messageHandler(QtMsgType type, const char *msg)
     Base::Console().Log("%s\n", msg);
 #endif
 }
+#endif
 
 #ifdef FC_DEBUG // redirect Coin messages to FreeCAD
 void messageHandlerCoin(const SoError * error, void * userdata)
@@ -1461,7 +1491,7 @@ void messageHandlerCoin(const SoError * error, void * userdata)
             Base::Console().Error("%s\n", msg);
             break;
         }
-#ifdef FC_OS_WIN32
+#if defined(FC_OS_WIN32) && QT_VERSION < 0x050000
     if (old_qtmsg_handler)
         (*old_qtmsg_handler)(QtDebugMsg, msg);
 #endif
@@ -1494,7 +1524,11 @@ void Application::initApplication(void)
         initTypes();
         new Base::ScriptProducer( "FreeCADGuiInit", FreeCADGuiInit );
         init_resources();
+#if QT_VERSION >= 0x050000
+        qInstallMessageHandler(messageHandler);
+#else
         old_qtmsg_handler = qInstallMsgHandler(messageHandler);
+#endif
         init = true;
     }
     catch (...) {
