@@ -125,6 +125,15 @@ public:
     {
         Ui::retranslateUi(this);
 
+#if QT_VERSION >= 0x050000
+        if (this->direction->count() == 0) {
+            this->direction->insertItems(0, QStringList()
+             << QApplication::translate("Gui::LocationDialog", "X", 0)
+             << QApplication::translate("Gui::LocationDialog", "Y", 0)
+             << QApplication::translate("Gui::LocationDialog", "Z", 0)
+             << QApplication::translate("Gui::LocationDialog", "User defined...", 0)
+            );
+#else
         if (this->direction->count() == 0) {
             this->direction->insertItems(0, QStringList()
              << QApplication::translate("Gui::LocationDialog", "X", 0, QApplication::UnicodeUTF8)
@@ -133,7 +142,7 @@ public:
              << QApplication::translate("Gui::LocationDialog", "User defined...", 0, 
                 QApplication::UnicodeUTF8)
             );
-
+#endif
             this->direction->setCurrentIndex(2);
 
             // Vector3d declared to use with QVariant see Gui/propertyeditor/PropertyItem.h
@@ -142,6 +151,13 @@ public:
             this->direction->setItemData(2, QVariant::fromValue<Base::Vector3d>(Base::Vector3d(0,0,1)));
         }
         else {
+#if QT_VERSION >= 0x050000
+            this->direction->setItemText(0, QApplication::translate("Gui::LocationDialog", "X", 0));
+            this->direction->setItemText(1, QApplication::translate("Gui::LocationDialog", "Y", 0));
+            this->direction->setItemText(2, QApplication::translate("Gui::LocationDialog", "Z", 0));
+            this->direction->setItemText(this->direction->count()-1,
+                QApplication::translate("Gui::LocationDialog", "User defined...", 0));
+#else
             this->direction->setItemText(0, QApplication::translate("Gui::LocationDialog", "X", 0,
                 QApplication::UnicodeUTF8));
             this->direction->setItemText(1, QApplication::translate("Gui::LocationDialog", "Y", 0,
@@ -151,6 +167,7 @@ public:
             this->direction->setItemText(this->direction->count()-1,
                 QApplication::translate("Gui::LocationDialog", "User defined...", 0,
                 QApplication::UnicodeUTF8));
+#endif
         }
     }
 
@@ -247,6 +264,15 @@ public:
     {
         Ui::retranslateUi(dlg);
 
+#if QT_VERSION >= 0x050000
+        if (this->direction->count() == 0) {
+            this->direction->insertItems(0, QStringList()
+             << QApplication::translate("Gui::LocationDialog", "X", 0)
+             << QApplication::translate("Gui::LocationDialog", "Y", 0)
+             << QApplication::translate("Gui::LocationDialog", "Z", 0)
+             << QApplication::translate("Gui::LocationDialog", "User defined...", 0)
+            );
+#else
         if (this->direction->count() == 0) {
             this->direction->insertItems(0, QStringList()
              << QApplication::translate("Gui::LocationDialog", "X", 0, QApplication::UnicodeUTF8)
@@ -255,7 +281,7 @@ public:
              << QApplication::translate("Gui::LocationDialog", "User defined...", 0, 
                 QApplication::UnicodeUTF8)
             );
-
+#endif
             this->direction->setCurrentIndex(2);
 
             // Vector3d declared to use with QVariant see Gui/propertyeditor/PropertyItem.h
@@ -264,6 +290,13 @@ public:
             this->direction->setItemData(2, QVariant::fromValue<Base::Vector3d>(Base::Vector3d(0,0,1)));
         }
         else {
+#if QT_VERSION >= 0x050000
+            this->direction->setItemText(0, QApplication::translate("Gui::LocationDialog", "X", 0));
+            this->direction->setItemText(1, QApplication::translate("Gui::LocationDialog", "Y", 0));
+            this->direction->setItemText(2, QApplication::translate("Gui::LocationDialog", "Z", 0));
+            this->direction->setItemText(this->direction->count()-1,
+                QApplication::translate("Gui::LocationDialog", "User defined...", 0));
+#else
             this->direction->setItemText(0, QApplication::translate("Gui::LocationDialog", "X", 0,
                 QApplication::UnicodeUTF8));
             this->direction->setItemText(1, QApplication::translate("Gui::LocationDialog", "Y", 0,
@@ -273,6 +306,7 @@ public:
             this->direction->setItemText(this->direction->count()-1,
                 QApplication::translate("Gui::LocationDialog", "User defined...", 0,
                 QApplication::UnicodeUTF8));
+#endif
         }
     }
 
