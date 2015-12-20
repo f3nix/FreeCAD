@@ -342,10 +342,17 @@ void MenuManager::retranslate(QMenu* menu) const
     QByteArray menuName = menu->menuAction()->data().toByteArray();
     Command* cmd = mgr.getCommandByName(menuName);
     if (cmd) {
+#if QT_VERSION >= 0x050000
+        menu->setTitle(
+            QApplication::translate(cmd->className(),
+                                    cmd->getMenuText(),
+                                    0));
+#else
         menu->setTitle(
             QApplication::translate(cmd->className(),
                                     cmd->getMenuText(),
                                     0, QCoreApplication::CodecForTr));
+#endif
     }
     else {
 #if QT_VERSION >= 0x050000
