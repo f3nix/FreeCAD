@@ -280,7 +280,13 @@ DlgFilletEdges::DlgFilletEdges(FilletType type, Part::FilletBase* fillet, QWidge
     ui->treeView->setModel(model);
 
     QHeaderView* header = ui->treeView->header();
+
+#if QT_VERSION >= 0x050000
+    header->setSectionResizeMode(0, QHeaderView::Stretch);
+#else
     header->setResizeMode(0, QHeaderView::Stretch);
+#endif
+
     header->setDefaultAlignment(Qt::AlignLeft);
     header->setMovable(false);
     on_filletType_activated(0);
