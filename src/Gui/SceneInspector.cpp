@@ -139,7 +139,11 @@ void DlgInspector::setNode(SoNode* node)
     header->setResizeMode(0, QHeaderView::Stretch);
 #endif
 
+#if QT_VERSION >= 0x050000
+    header->setSectionsMovable(false);
+#else
     header->setMovable(false);
+#endif
 }
 
 void DlgInspector::changeEvent(QEvent *e)
