@@ -259,7 +259,11 @@ DlgFilletEdges::DlgFilletEdges(FilletType type, Part::FilletBase* fillet, QWidge
 #endif
 
     header->setDefaultAlignment(Qt::AlignLeft);
+#if QT_VERSION >= 0x050000
+    header->setSectionsMovable(false);
+#else
     header->setMovable(false);
+#endif
     on_filletType_activated(0);
     findShapes();
 }
