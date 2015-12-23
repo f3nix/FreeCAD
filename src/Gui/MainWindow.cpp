@@ -1465,10 +1465,18 @@ void MainWindow::loadUrls(App::Document* doc, const QList<QUrl>& url)
 //#ifndef QT_NO_OPENSSL
         else if (it->scheme().toLower() == QLatin1String("https")) {
             QUrl url = *it;
+#if QT_VERSION >= 0x050000
+            // fixme_qt5
+//            if (it->hasEncodedQueryItem(QByteArray("sid"))) {
+//                url.removeEncodedQueryItem(QByteArray("sid"));
+//                url.setScheme(QLatin1String("http"));
+//            }
+#else
             if (it->hasEncodedQueryItem(QByteArray("sid"))) {
                 url.removeEncodedQueryItem(QByteArray("sid"));
                 url.setScheme(QLatin1String("http"));
             }
+#endif
             Gui::Dialog::DownloadManager* dm = Gui::Dialog::DownloadManager::getInstance();
             dm->download(dm->redirectUrl(url));
         }

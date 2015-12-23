@@ -114,6 +114,17 @@ QUrl DownloadManager::redirectUrl(const QUrl& url) const
 {
     QUrl redirectUrl = url;
     if (url.host() == QLatin1String("www.dropbox.com")) {
+#if QT_VERSION >= 0x050000
+        // fixme_qt5
+//        QList< QPair<QString, QString> > query = url.queryItems();
+//        for (QList< QPair<QString, QString> >::iterator it = query.begin(); it != query.end(); ++it) {
+//            if (it->first == QLatin1String("dl") && it->second == QLatin1String("0\r\n")) {
+//                redirectUrl.removeQueryItem(QLatin1String("dl"));
+//                redirectUrl.addQueryItem(QLatin1String("dl"), QLatin1String("1\r\n"));
+//                break;
+//            }
+//        }
+#else
         QList< QPair<QString, QString> > query = url.queryItems();
         for (QList< QPair<QString, QString> >::iterator it = query.begin(); it != query.end(); ++it) {
             if (it->first == QLatin1String("dl") && it->second == QLatin1String("0\r\n")) {
@@ -122,6 +133,7 @@ QUrl DownloadManager::redirectUrl(const QUrl& url) const
                 break;
             }
         }
+#endif
     }
     else {
         // When the url comes from drag and drop it may end with CR+LF. This may cause problems
