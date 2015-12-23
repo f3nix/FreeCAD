@@ -167,7 +167,11 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent)
             SLOT(proxyAuthenticationRequired(const QNetworkProxy&, QAuthenticator*)));
 
     QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
+#if QT_VERSION >= 0x050000
+    QString location = QStandardPaths::standardLocations(QStandardPaths::CacheLocation).at(0);
+#else
     QString location = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
+#endif
     diskCache->setCacheDirectory(location);
     setCache(diskCache);
 }
@@ -281,7 +285,11 @@ void DownloadItem::init()
 QString DownloadItem::getDownloadDirectory() const
 {
     QString exe = QString::fromLatin1(App::GetApplication().getExecutableName());
+#if QT_VERSION >= 0x050000
+    QString path = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).at(0);
+#else
     QString path = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+#endif
     QString dirPath = QDir(path).filePath(exe);
     Base::Reference<ParameterGrp> hPath = App::GetApplication().GetUserParameter().GetGroup("BaseApp")
                                ->GetGroup("Preferences")->GetGroup("General");
