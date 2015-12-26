@@ -147,9 +147,13 @@
 #include <QWorkspace> // obsolete
 // QtNetwork
 #include <QFtp>
+#if QT_VERSION >= 0x050000
+#include <qhttp.h>
+#else
 #include <QHttp>
 #include <QHttpResponseHeader>
 #include <QHttpRequestHeader>
+#endif
 #include <QTcpServer>
 #include <QTcpSocket>
 // QtOpenGL

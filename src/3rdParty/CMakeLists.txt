@@ -8,3 +8,7 @@ endif(BUILD_CAM)
 if (BUILD_SMESH AND NOT FREECAD_USE_EXTERNAL_SMESH)
     add_subdirectory(salomesmesh)
 endif()
+
+if(FREECAD_USE_QT5)
+    add_subdirectory(qthttp)
+endif(FREECAD_USE_QT5)

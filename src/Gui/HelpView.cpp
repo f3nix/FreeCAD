@@ -28,7 +28,11 @@
 # include <QDropEvent>
 # include <QGroupBox>
 # include <QHBoxLayout>
+#if QT_VERSION >= 0x050000
+# include <qhttp.h>
+#else
 # include <QHttp>
+#endif
 # include <QLabel>
 # include <QMenu>
 # include <QMessageBox>
