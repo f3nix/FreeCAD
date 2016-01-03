@@ -810,6 +810,32 @@ endif(FREECAD_USE_QT5)
 
 # -------------------------------- Shiboken/PySide ------------------------
 
+if(FREECAD_USE_QT5)
+    # set(PYTHON_SUFFIX -python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+    SET(PYTHON_SUFFIX -python2.7) # for shiboken
+    SET(PYTHON_BASENAME -python2.7) # for PySide
+
+    if(DEFINED MACPORTS_PREFIX)
+        find_package(Shiboken REQUIRED HINTS "${PYTHON_LIBRARY_DIR}/cmake")
+        find_package(PySide REQUIRED HINTS "${PYTHON_LIBRARY_DIR}/cmake")
+    endif(DEFINED MACPORTS_PREFIX)
+
+    find_package(Shiboken2)# REQUIRED
+    if(NOT SHIBOKEN_INCLUDE_DIR)
+        MESSAGE(FATAL_ERROR "===================\n"
+                            "shiboken2 not found.\n"
+                            "===================\n")
+    endif(NOT SHIBOKEN_INCLUDE_DIR)
+
+    find_package(PySide2)# REQUIRED
+    if(NOT PYSIDE_INCLUDE_DIR)
+        MESSAGE(FATAL_ERROR "=================\n"
+                            "PySide2 not found.\n"
+                            "=================\n")
+    endif(NOT PYSIDE_INCLUDE_DIR)
+
+    find_package(PySideTools REQUIRED) # PySide2 utilities (pyside-uic & pyside-rcc)
+else(FREECAD_USE_QT5)
         # set(PYTHON_SUFFIX -python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
         SET(PYTHON_SUFFIX -python2.7) # for shiboken
         SET(PYTHON_BASENAME -python2.7) # for PySide
@@ -834,6 +860,7 @@ endif(FREECAD_USE_QT5)
         endif(NOT PYSIDE_INCLUDE_DIR)
 
         find_package(PySideTools REQUIRED) # PySide utilities (pyside-uic & pyside-rcc)
+endif(FREECAD_USE_QT5)
 
 # ------------------------------ Matplotlib ------------------------------
 
