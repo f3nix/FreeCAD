@@ -105,6 +105,19 @@ if(SHIBOKEN_INCLUDE_DIR)
 endif(SHIBOKEN_INCLUDE_DIR)
 
 if(PYSIDE_INCLUDE_DIR)
+if(FREECAD_USE_QT5)
+    add_definitions(-DHAVE_PYSIDE)
+    include_directories(
+        ${PYSIDE_INCLUDE_DIR}
+        ${PYSIDE_INCLUDE_DIR}/QtCore
+        ${PYSIDE_INCLUDE_DIR}/QtGui
+        ${PYSIDE_INCLUDE_DIR}/QtWidgets
+    )
+    set(FreeCADGui_LIBS
+        ${FreeCADGui_LIBS}
+        ${PYSIDE_LIBRARY}
+    )
+else(FREECAD_USE_QT5)
     add_definitions(-DHAVE_PYSIDE)
     include_directories(
         ${PYSIDE_INCLUDE_DIR}
@@ -115,6 +128,7 @@ if(PYSIDE_INCLUDE_DIR)
         ${FreeCADGui_LIBS}
         ${PYSIDE_LIBRARY}
     )
+endif(FREECAD_USE_QT5)
 endif(PYSIDE_INCLUDE_DIR)
 
 generate_from_xml(DocumentPy)

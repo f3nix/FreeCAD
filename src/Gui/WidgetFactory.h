@@ -45,6 +45,9 @@ public:
     PythonWrapper();
     bool loadCoreModule();
     bool loadGuiModule();
+#if QT_VERSION >= 0x050000
+    bool loadWidgetsModule();
+#endif
 
     bool toCString(const Py::Object&, std::string&);
     QObject* toQObject(const Py::Object&);
