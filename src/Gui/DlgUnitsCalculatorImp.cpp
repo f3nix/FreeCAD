@@ -30,6 +30,7 @@
 
 #include "DlgUnitsCalculatorImp.h"
 #include <Base/UnitsApi.h>
+#include <propertyeditor/PropertyItem.h>
 
 using namespace Gui::Dialog;
 
