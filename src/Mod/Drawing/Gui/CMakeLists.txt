@@ -30,19 +30,31 @@ set(DrawingGui_MOC_HDRS
     TaskDialog.h
 )
 
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(DrawingGui_MOC_SRCS ${DrawingGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(DrawingGui_MOC_SRCS ${DrawingGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
 
-
-
-fc_wrap_cpp(DrawingGui_MOC_SRCS ${DrawingGui_MOC_HDRS})
 SOURCE_GROUP("Moc" FILES ${DrawingGui_MOC_SRCS})
 
-qt4_add_resources(DrawingGui_SRCS Resources/Drawing.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(DrawingGui_SRCS Resources/Drawing.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(DrawingGui_SRCS Resources/Drawing.qrc)
+endif(FREECAD_USE_QT5)
+
 
 set(DrawingGui_UIC_SRCS
     TaskOrthoViews.ui
 )
 
-qt4_wrap_ui(DrawingGui_UIC_HDRS ${DrawingGui_UIC_SRCS})
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(DrawingGui_UIC_HDRS ${DrawingGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(DrawingGui_UIC_HDRS ${DrawingGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
+
 
 SET(DrawingGui_SRCS
     ${DrawingGui_SRCS}

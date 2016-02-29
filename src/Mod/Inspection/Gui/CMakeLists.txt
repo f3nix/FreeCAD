@@ -16,18 +16,32 @@ set(InspectionGui_LIBS
     FreeCADGui
 )
 
-qt4_add_resources(Inspection_QRC_SRCS Resources/Inspection.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(Inspection_QRC_SRCS Resources/Inspection.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(Inspection_QRC_SRCS Resources/Inspection.qrc)
+endif(FREECAD_USE_QT5)
 
 set(InspectionGui_MOC_HDRS
     VisualInspection.h
 )
-fc_wrap_cpp(InspectionGui_MOC_SRCS ${InspectionGui_MOC_HDRS})
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(InspectionGui_MOC_SRCS ${InspectionGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(InspectionGui_MOC_SRCS ${InspectionGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${InspectionGui_MOC_SRCS})
 
 set(Dialogs_UIC_SRCS
     VisualInspection.ui
 )
-qt4_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+endif(FREECAD_USE_QT5)
+
 SET(Dialogs_SRCS
     ${Dialogs_UIC_HDRS}
     VisualInspection.cpp

@@ -209,9 +209,14 @@ void MenuManager::setup(MenuItem* menuItems) const
             else {
                 // create a new menu
                 std::string menuName = (*it)->command();
+#if QT_VERSION >= 0x050000
+                QMenu* menu = menuBar->addMenu(
+                    QApplication::translate("Workbench", menuName.c_str(), 0));
+#else
                 QMenu* menu = menuBar->addMenu(
                     QApplication::translate("Workbench", menuName.c_str(),
                                             0, QApplication::UnicodeUTF8));
+#endif
                 action = menu->menuAction();
                 menu->setObjectName(QString::fromLatin1(menuName.c_str()));
                 action->setObjectName(QString::fromLatin1(menuName.c_str()));
@@ -263,9 +268,14 @@ void MenuManager::setup(MenuItem* item, QMenu* menu) const
                 if ((*it)->hasItems()) {
                     // Creste a submenu
                     std::string menuName = (*it)->command();
+#if QT_VERSION >= 0x050000
+                    QMenu* submenu = menu->addMenu(
+                        QApplication::translate("Workbench", menuName.c_str(), 0));
+#else
                     QMenu* submenu = menu->addMenu(
                         QApplication::translate("Workbench", menuName.c_str(),
                                                 0, QApplication::UnicodeUTF8));
+#endif
                     QAction* action = submenu->menuAction();
                     submenu->setObjectName(QString::fromLatin1((*it)->command().c_str()));
                     action->setObjectName(QString::fromLatin1((*it)->command().c_str()));
@@ -332,16 +342,29 @@ void MenuManager::retranslate(QMenu* menu) const
     QByteArray menuName = menu->menuAction()->data().toByteArray();
     Command* cmd = mgr.getCommandByName(menuName);
     if (cmd) {
+#if QT_VERSION >= 0x050000
+        menu->setTitle(
+            QApplication::translate(cmd->className(),
+                                    cmd->getMenuText(),
+                                    0));
+#else
         menu->setTitle(
             QApplication::translate(cmd->className(),
                                     cmd->getMenuText(),
                                     0, QCoreApplication::CodecForTr));
+#endif
     }
     else {
+#if QT_VERSION >= 0x050000
+        menu->setTitle(
+            QApplication::translate("Workbench",
+                                    (const char*)menuName, 0));
+#else
         menu->setTitle(
             QApplication::translate("Workbench",
                                     (const char*)menuName,
                                     0, QApplication::UnicodeUTF8));
+#endif
     }
     QList<QAction*> actions = menu->actions();
     for (QList<QAction*>::Iterator it = actions.begin(); it != actions.end(); ++it) {

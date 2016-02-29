@@ -198,10 +198,17 @@ void ToolBarManager::setup(ToolBarItem* toolBarItems)
         bool toolbar_added = false;
 
         if (!toolbar) {
+#if QT_VERSION >= 0x050000
+            toolbar = getMainWindow()->addToolBar(
+                QApplication::translate("Workbench",
+                                        toolbarName.c_str(),
+                                        0)); // i18n
+#else
             toolbar = getMainWindow()->addToolBar(
                 QApplication::translate("Workbench",
                                         toolbarName.c_str(),
                                         0, QApplication::UnicodeUTF8)); // i18n
+#endif
             toolbar->setObjectName(name);
             toolbar->setVisible(visible);
             toolbar_added = true;
@@ -322,10 +329,17 @@ void ToolBarManager::retranslate() const
     QList<QToolBar*> toolbars = toolBars();
     for (QList<QToolBar*>::Iterator it = toolbars.begin(); it != toolbars.end(); ++it) {
         QByteArray toolbarName = (*it)->objectName().toUtf8();
+#if QT_VERSION >= 0x050000
+        (*it)->setWindowTitle(
+            QApplication::translate("Workbench",
+                                    (const char*)toolbarName,
+                                    0));
+#else
         (*it)->setWindowTitle(
             QApplication::translate("Workbench",
                                     (const char*)toolbarName,
                                     0, QApplication::UnicodeUTF8));
+#endif
     }
 }
 

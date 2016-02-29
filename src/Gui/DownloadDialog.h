@@ -30,7 +30,11 @@
 #include <QBuffer>
 #include <QLabel>
 #include <QProgressBar>
-#include <QHttp>
+#if QT_VERSION >= 0x050000
+# include <qhttp.h>
+#else
+# include <QHttp>
+#endif
 #include <QFileInfo>
 #include <QCloseEvent>
 #include <QDialogButtonBox>

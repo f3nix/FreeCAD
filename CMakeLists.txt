@@ -8,7 +8,11 @@ set(PACKAGE_VERSION_PATCH "4665")
 set(PACKAGE_VERSION "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 
-cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
+if(FREECAD_USE_QT5)
+    cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+else(FREECAD_USE_QT5)
+    cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
+endif(FREECAD_USE_QT5)
 
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
@@ -208,6 +212,8 @@ if(NOT MSVC)
     OPTION(BUILD_FEM_NETGEN "Build the FreeCAD FEM module with the NETGEN mesher" OFF)
     OPTION(FREECAD_USE_PCL "Build the features that use PCL libs" OFF)
 endif(NOT MSVC)
+
+OPTION(FREECAD_USE_QT5 "Use Qt5 instead of Qt4" OFF)
 
 # if this is set override some options
 if (FREECAD_BUILD_DEBIAN)
@@ -679,7 +685,37 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 # -------------------------------- Qt --------------------------------
 
 # sets ${QT_LIBRARIES}
+if(FREECAD_USE_QT5)
+    set(Qt5_components Widgets Xml OpenGL UiTools PrintSupport Concurrent Network Svg WebKit WebKitWidgets)
+    find_package(Qt5 REQUIRED COMPONENTS ${Qt5_components})
 
+
+    set(QT_INCLUDE_DIR ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Xml_INCLUDE_DIRS} ${Qt5WebKitWidgets_INCLUDE_DIRS})
+    foreach(component ${Qt5_components})
+        set(QT_LIBRARIES ${QT_LIBRARIES} Qt5::${component})
+    endforeach(component)
+
+    message("Using Qt5!!!")
+
+    macro(fc_qt5_wrap_cpp outfiles)
+        # get include dirs
+        qt5_get_moc_flags(moc_flags)
+        set(moc_files ${ARGN})
+           #QT4_EXTRACT_OPTIONS(moc_files moc_options moc_target ${ARGN})
+           # fixes bug 0000585: bug with boost 1.48
+           set(moc_options ${moc_options} -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED)
+
+           foreach(it ${moc_files})
+               get_filename_component(it ${it} ABSOLUTE)
+               qt5_make_output_file(${it} moc_ cpp outfile)
+               qt5_create_moc_command(${it} ${outfile} "${moc_flags}" "${moc_options}" "${moc_target}")
+               set(${outfiles} ${${outfiles}} ${outfile})
+               add_file_dependencies(${it} ${outfile})
+           endforeach(it)
+    endmacro(fc_qt5_wrap_cpp)
+
+    set(QTHTTP_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/3rdParty/qthttp/src/qhttp)
+else(FREECAD_USE_QT5)
     SET(QT_MIN_VERSION 4.5.0)
     set(QT_USE_QTNETWORK TRUE)
     set(QT_USE_QTXML TRUE)
@@ -731,6 +767,7 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             add_file_dependencies(${it} ${outfile})
         endforeach(it)
     endmacro(fc_wrap_cpp)
+endif(FREECAD_USE_QT5)
 
 #--------------------FreeType-----------------------
 
@@ -779,6 +816,32 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # -------------------------------- Shiboken/PySide ------------------------
 
+if(FREECAD_USE_QT5)
+    # set(PYTHON_SUFFIX -python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+    SET(PYTHON_SUFFIX -python2.7) # for shiboken
+    SET(PYTHON_BASENAME -python2.7) # for PySide
+
+    if(DEFINED MACPORTS_PREFIX)
+        find_package(Shiboken REQUIRED HINTS "${PYTHON_LIBRARY_DIR}/cmake")
+        find_package(PySide REQUIRED HINTS "${PYTHON_LIBRARY_DIR}/cmake")
+    endif(DEFINED MACPORTS_PREFIX)
+
+    find_package(Shiboken2)# REQUIRED
+    if(NOT SHIBOKEN_INCLUDE_DIR)
+        MESSAGE(FATAL_ERROR "===================\n"
+                            "shiboken2 not found.\n"
+                            "===================\n")
+    endif(NOT SHIBOKEN_INCLUDE_DIR)
+
+    find_package(PySide2)# REQUIRED
+    if(NOT PYSIDE_INCLUDE_DIR)
+        MESSAGE(FATAL_ERROR "=================\n"
+                            "PySide2 not found.\n"
+                            "=================\n")
+    endif(NOT PYSIDE_INCLUDE_DIR)
+
+    find_package(PySideTools REQUIRED) # PySide2 utilities (pyside-uic & pyside-rcc)
+else(FREECAD_USE_QT5)
         # set(PYTHON_SUFFIX -python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
         SET(PYTHON_SUFFIX -python2.7) # for shiboken
         SET(PYTHON_BASENAME -python2.7) # for PySide
@@ -803,6 +866,7 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         endif(NOT PYSIDE_INCLUDE_DIR)
 
         find_package(PySideTools REQUIRED) # PySide utilities (pyside-uic & pyside-rcc)
+endif(FREECAD_USE_QT5)
 
 # ------------------------------ Matplotlib ------------------------------
 

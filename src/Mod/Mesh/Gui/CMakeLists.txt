@@ -27,7 +27,13 @@ set(Mesh_MOC_HDRS
     RemoveComponents.h
     Selection.h
 )
-fc_wrap_cpp(Mesh_MOC_SRCS ${Mesh_MOC_HDRS})
+
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(Mesh_MOC_SRCS ${Mesh_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(Mesh_MOC_SRCS ${Mesh_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${Mesh_MOC_SRCS})
 
 set(Dialogs_UIC_SRCS
@@ -40,7 +46,13 @@ set(Dialogs_UIC_SRCS
     Segmentation.ui
     Selection.ui
 )
-qt4_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(Dialogs_UIC_HDRS ${Dialogs_UIC_SRCS})
+endif(FREECAD_USE_QT5)
+
 SET(Dialogs_SRCS
     ${Dialogs_UIC_HDRS}
     DlgEvaluateMesh.ui
@@ -79,7 +91,12 @@ SET(Inventor_SRCS
 )
 SOURCE_GROUP("Inventor" FILES ${Inventor_SRCS})
 
-qt4_add_resources(resource_SRCS Resources/Mesh.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(resource_SRCS Resources/Mesh.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(resource_SRCS Resources/Mesh.qrc)
+endif(FREECAD_USE_QT5)
+
 SET(resource_SRCS
     ${resource_SRCS}
     Resources/Mesh.qrc

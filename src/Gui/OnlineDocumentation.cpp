@@ -24,7 +24,11 @@
 #include "PreCompiled.h"
 #ifndef _PreComp_
 # include <QBuffer>
+#if QT_VERSION >= 0x050000
+# include <qhttp.h>
+#else
 # include <QHttpResponseHeader>
+#endif
 # include <QMessageBox>
 # include <QTcpSocket>
 #endif

@@ -13,7 +13,11 @@ set(StartGui_LIBS
     FreeCADGui
 )
 
-qt4_add_resources(Start_QRC_SRCS Resources/Start.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(Start_QRC_SRCS Resources/Start.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(Start_QRC_SRCS Resources/Start.qrc)
+endif(FREECAD_USE_QT5)
 
 SET(StartGui_SRCS
     ${Start_QRC_SRCS}

@@ -593,6 +593,32 @@ void StdCmdDrawStyle::languageChange()
     Gui::ActionGroup* pcAction = qobject_cast<Gui::ActionGroup*>(_pcAction);
     QList<QAction*> a = pcAction->actions();
 
+#if QT_VERSION >= 0x050000
+    a[0]->setText(QCoreApplication::translate(
+        "Std_DrawStyle", "As is", 0));
+    a[0]->setToolTip(QCoreApplication::translate(
+        "Std_DrawStyle", "Normal mode", 0));
+
+    a[1]->setText(QCoreApplication::translate(
+        "Std_DrawStyle", "Flat lines", 0));
+    a[1]->setToolTip(QCoreApplication::translate(
+        "Std_DrawStyle", "Flat lines mode", 0));
+
+    a[2]->setText(QCoreApplication::translate(
+        "Std_DrawStyle", "Shaded", 0));
+    a[2]->setToolTip(QCoreApplication::translate(
+        "Std_DrawStyle", "Shaded mode", 0));
+
+    a[3]->setText(QCoreApplication::translate(
+        "Std_DrawStyle", "Wireframe", 0));
+    a[3]->setToolTip(QCoreApplication::translate(
+        "Std_DrawStyle", "Wireframe mode", 0));
+
+    a[4]->setText(QCoreApplication::translate(
+        "Std_DrawStyle", "Points", 0));
+    a[4]->setToolTip(QCoreApplication::translate(
+        "Std_DrawStyle", "Points mode", 0));
+#else
     a[0]->setText(QCoreApplication::translate(
         "Std_DrawStyle", "As is", 0,
         QCoreApplication::CodecForTr));
@@ -627,6 +653,7 @@ void StdCmdDrawStyle::languageChange()
     a[4]->setToolTip(QCoreApplication::translate(
         "Std_DrawStyle", "Points mode", 0,
         QCoreApplication::CodecForTr));
+#endif
 }
 
 void StdCmdDrawStyle::updateIcon(const MDIView *view)
@@ -1322,11 +1349,24 @@ Action * StdViewDockUndockFullscreen::createAction(void)
 {
     ActionGroup* pcAction = new ActionGroup(this, getMainWindow());
     pcAction->setDropDownMenu(true);
+#if QT_VERSION >= 0x050000
+    pcAction->setText(QCoreApplication::translate(
+        this->className(), sMenuText, 0));
+#else
     pcAction->setText(QCoreApplication::translate(
         this->className(), sMenuText, 0,
         QCoreApplication::CodecForTr));
+#endif
 
     QAction* docked = pcAction->addAction(QObject::tr(QT_TR_NOOP("Docked")));
+#if QT_VERSION >= 0x050000
+    docked->setToolTip(QCoreApplication::translate(
+        this->className(), sToolTipText, 0));
+    docked->setStatusTip(QCoreApplication::translate(
+        this->className(), sStatusTip, 0));
+    docked->setWhatsThis(QCoreApplication::translate(
+        this->className(), sWhatsThis, 0));
+#else
     docked->setToolTip(QCoreApplication::translate(
         this->className(), sToolTipText, 0,
         QCoreApplication::CodecForTr));
@@ -1336,10 +1376,19 @@ Action * StdViewDockUndockFullscreen::createAction(void)
     docked->setWhatsThis(QCoreApplication::translate(
         this->className(), sWhatsThis, 0,
         QCoreApplication::CodecForTr));
+#endif
     docked->setShortcut(Qt::Key_D);
     docked->setCheckable(true);
 
     QAction* undocked = pcAction->addAction(QObject::tr(QT_TR_NOOP("Undocked")));
+#if QT_VERSION >= 0x050000
+    undocked->setToolTip(QCoreApplication::translate(
+        this->className(), sToolTipText, 0));
+    undocked->setStatusTip(QCoreApplication::translate(
+        this->className(), sStatusTip, 0));
+    undocked->setWhatsThis(QCoreApplication::translate(
+        this->className(), sWhatsThis, 0));
+#else
     undocked->setToolTip(QCoreApplication::translate(
         this->className(), sToolTipText, 0,
         QCoreApplication::CodecForTr));
@@ -1349,10 +1398,19 @@ Action * StdViewDockUndockFullscreen::createAction(void)
     undocked->setWhatsThis(QCoreApplication::translate(
         this->className(), sWhatsThis, 0,
         QCoreApplication::CodecForTr));
+#endif
     undocked->setShortcut(Qt::Key_U);
     undocked->setCheckable(true);
 
     QAction* fullscr = pcAction->addAction(QObject::tr(QT_TR_NOOP("Fullscreen")));
+#if QT_VERSION >= 0x050000
+    fullscr->setToolTip(QCoreApplication::translate(
+        this->className(), sToolTipText, 0));
+    fullscr->setStatusTip(QCoreApplication::translate(
+        this->className(), sStatusTip, 0));
+    fullscr->setWhatsThis(QCoreApplication::translate(
+        this->className(), sWhatsThis, 0));
+#else
     fullscr->setToolTip(QCoreApplication::translate(
         this->className(), sToolTipText, 0,
         QCoreApplication::CodecForTr));
@@ -1362,6 +1420,7 @@ Action * StdViewDockUndockFullscreen::createAction(void)
     fullscr->setWhatsThis(QCoreApplication::translate(
         this->className(), sWhatsThis, 0,
         QCoreApplication::CodecForTr));
+#endif
     fullscr->setShortcut(Qt::Key_F11);
     fullscr->setCheckable(true);
     fullscr->setIcon(Gui::BitmapFactory().iconFromTheme("view-fullscreen"));

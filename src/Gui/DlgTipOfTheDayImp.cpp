@@ -29,7 +29,11 @@
 # include <qlabel.h>
 # include <qlayout.h>
 # include <qtextstream.h>
+#if QT_VERSION >= 0x050000
+# include <qhttp.h>
+#else
 # include <QHttp>
+#endif
 #endif
 
 #include "DlgTipOfTheDayImp.h"

@@ -38,6 +38,7 @@ include_directories(
     ${QT_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIR}
     ${3DCONNEXION_INCLUDE_DIR}
+    ${QTHTTP_INCLUDE_DIR}
 )
 
 if(MSVC)
@@ -58,6 +59,10 @@ else(MSVC)
         ${3DCONNEXION_LINKFLAGS}
     )
 endif(MSVC)
+
+if(FREECAD_USE_QT5)
+    set(FreeCADGui_LIBS ${FreeCADGui_LIBS} QtHttp)
+endif(FREECAD_USE_QT5)
 
 IF(SPNAV_FOUND)
     add_definitions(-DSPNAV_FOUND)
@@ -100,6 +105,19 @@ if(SHIBOKEN_INCLUDE_DIR)
 endif(SHIBOKEN_INCLUDE_DIR)
 
 if(PYSIDE_INCLUDE_DIR)
+if(FREECAD_USE_QT5)
+    add_definitions(-DHAVE_PYSIDE)
+    include_directories(
+        ${PYSIDE_INCLUDE_DIR}
+        ${PYSIDE_INCLUDE_DIR}/QtCore
+        ${PYSIDE_INCLUDE_DIR}/QtGui
+        ${PYSIDE_INCLUDE_DIR}/QtWidgets
+    )
+    set(FreeCADGui_LIBS
+        ${FreeCADGui_LIBS}
+        ${PYSIDE_LIBRARY}
+    )
+else(FREECAD_USE_QT5)
     add_definitions(-DHAVE_PYSIDE)
     include_directories(
         ${PYSIDE_INCLUDE_DIR}
@@ -110,6 +128,7 @@ if(PYSIDE_INCLUDE_DIR)
         ${FreeCADGui_LIBS}
         ${PYSIDE_LIBRARY}
     )
+endif(FREECAD_USE_QT5)
 endif(PYSIDE_INCLUDE_DIR)
 
 generate_from_xml(DocumentPy)
@@ -260,7 +279,11 @@ set(Gui_MOC_HDRS
     TaskView/TaskView.h
 )
 #qt4_wrap_cpp(Gui_MOC_SRCS ${Gui_MOC_HDRS})
-fc_wrap_cpp(Gui_MOC_SRCS ${Gui_MOC_HDRS})
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(Gui_MOC_SRCS ${Gui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(Gui_MOC_SRCS ${Gui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
 #SOURCE_GROUP("Moc" FILES ${Gui_MOC_SRCS})
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/moc_GraphvizView-internal.cpp
@@ -328,9 +351,19 @@ SET(Gui_RES_SRCS
     iisTaskPanel/src/iisTaskPanel.qrc
     QSint/actionpanel/schemes.qrc
 )
-QT4_ADD_RESOURCES(Gui_QRC_SRCS ${Gui_RES_SRCS})
 
-QT4_WRAP_UI(Gui_UIC_HDRS ${Gui_UIC_SRCS})
+if(FREECAD_USE_QT5)
+    qt5_add_resources(Gui_QRC_SRCS ${Gui_RES_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_add_resources(Gui_QRC_SRCS ${Gui_RES_SRCS})
+endif(FREECAD_USE_QT5)
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(Gui_UIC_HDRS ${Gui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(Gui_UIC_HDRS ${Gui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Uic" FILES ${Gui_UIC_HDRS})
 
 # The command sources
@@ -680,7 +713,12 @@ set(iis_MOC_HDRS
     iisTaskPanel/src/iistaskgroup.h
     iisTaskPanel/src/iistaskheader.h
 )
-qt4_wrap_cpp(iis_MOC_SRCS ${iis_MOC_HDRS})
+if(FREECAD_USE_QT5)
+    qt5_wrap_cpp(iis_MOC_SRCS ${iis_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_cpp(iis_MOC_SRCS ${iis_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Widget\\iisTaskPanel\\Mocs" FILES ${iis_MOC_SRCS})
 
 SET(qsintActionPanel_SRCS
@@ -717,7 +755,12 @@ set(qsint_MOC_HDRS
     QSint/actionpanel/actionpanel.h
     QSint/actionpanel/taskheader_p.h
 )
-qt4_wrap_cpp(qsint_MOC_SRCS ${qsint_MOC_HDRS})
+if(FREECAD_USE_QT5)
+    qt5_wrap_cpp(qsint_MOC_SRCS ${qsint_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_cpp(qsint_MOC_SRCS ${qsint_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Widget\\QSintActionPanel\\Mocs" FILES ${qsint_MOC_SRCS})
 
 #SET(Resource_RCS
@@ -786,7 +829,12 @@ SET(Quarter_MOC_HDR
     Quarter/eventhandlers/EventFilter.h
     Quarter/QuarterWidget.h
 )  
-qt4_wrap_cpp(Quarter_MOC_SRCS ${Quarter_MOC_HDR})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_cpp(Quarter_MOC_SRCS ${Quarter_MOC_HDR})
+else(FREECAD_USE_QT5)
+    qt4_wrap_cpp(Quarter_MOC_SRCS ${Quarter_MOC_HDR})
+endif(FREECAD_USE_QT5)
 
 SET(Quarter_SRCS 
     ${Quarter_CPP_SRC} 

@@ -416,6 +416,16 @@ Action * StdCmdDownloadOnlineHelp::createAction(void)
 
     QString exe = QString::fromLatin1(App::GetApplication().getExecutableName());
     pcAction = new Action(this,getMainWindow());
+#if QT_VERSION >= 0x050000
+    pcAction->setText(QCoreApplication::translate(
+        this->className(), sMenuText, 0));
+    pcAction->setToolTip(QCoreApplication::translate(
+        this->className(), sToolTipText, 0).arg(exe));
+    pcAction->setStatusTip(QCoreApplication::translate(
+        this->className(), sStatusTip, 0).arg(exe));
+    pcAction->setWhatsThis(QCoreApplication::translate(
+        this->className(), sWhatsThis, 0).arg(exe));
+#else
     pcAction->setText(QCoreApplication::translate(
         this->className(), sMenuText, 0,
         QCoreApplication::CodecForTr));
@@ -428,6 +438,7 @@ Action * StdCmdDownloadOnlineHelp::createAction(void)
     pcAction->setWhatsThis(QCoreApplication::translate(
         this->className(), sWhatsThis, 0,
         QCoreApplication::CodecForTr).arg(exe));
+#endif
     pcAction->setIcon(Gui::BitmapFactory().pixmap(sPixmap));
     pcAction->setShortcut(QString::fromLatin1(sAccel));
 
@@ -438,6 +449,16 @@ void StdCmdDownloadOnlineHelp::languageChange()
 {
     if (_pcAction) {
         QString exe = QString::fromLatin1(App::GetApplication().getExecutableName());
+#if QT_VERSION >= 0x050000
+        _pcAction->setText(QCoreApplication::translate(
+            this->className(), sMenuText, 0));
+        _pcAction->setToolTip(QCoreApplication::translate(
+            this->className(), sToolTipText, 0).arg(exe));
+        _pcAction->setStatusTip(QCoreApplication::translate(
+            this->className(), sStatusTip, 0).arg(exe));
+        _pcAction->setWhatsThis(QCoreApplication::translate(
+            this->className(), sWhatsThis, 0).arg(exe));
+#else
         _pcAction->setText(QCoreApplication::translate(
             this->className(), sMenuText, 0,
             QCoreApplication::CodecForTr));
@@ -450,6 +471,7 @@ void StdCmdDownloadOnlineHelp::languageChange()
         _pcAction->setWhatsThis(QCoreApplication::translate(
             this->className(), sWhatsThis, 0,
             QCoreApplication::CodecForTr).arg(exe));
+#endif
     }
 }
 
@@ -552,9 +574,14 @@ void StdCmdDownloadOnlineHelp::activated(int iMsg)
 void StdCmdDownloadOnlineHelp::wgetFinished()
 {
     if (_pcAction)
+#if QT_VERSION >= 0x050000
+        _pcAction->setText(QCoreApplication::translate(
+            this->className(), sMenuText, 0));
+#else
         _pcAction->setText(QCoreApplication::translate(
             this->className(), sMenuText, 0,
             QCoreApplication::CodecForTr));
+#endif
 }
 
 #include "moc_NetworkRetriever.cpp"

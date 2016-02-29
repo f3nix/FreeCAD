@@ -228,12 +228,21 @@ QString ActionSelector::availableLabel() const
 
 void ActionSelector::retranslateUi()
 {
+#if QT_VERSION >= 0x050000
+    labelAvailable->setText(QApplication::translate("Gui::ActionSelector", "Available:", 0));
+    labelSelected->setText(QApplication::translate("Gui::ActionSelector", "Selected:", 0));
+    addButton->setToolTip(QApplication::translate("Gui::ActionSelector", "Add", 0));
+    removeButton->setToolTip(QApplication::translate("Gui::ActionSelector", "Remove", 0));
+    upButton->setToolTip(QApplication::translate("Gui::ActionSelector", "Move up", 0));
+    downButton->setToolTip(QApplication::translate("Gui::ActionSelector", "Move down", 0));
+#else
     labelAvailable->setText(QApplication::translate("Gui::ActionSelector", "Available:", 0, QApplication::UnicodeUTF8));
     labelSelected->setText(QApplication::translate("Gui::ActionSelector", "Selected:", 0, QApplication::UnicodeUTF8));
     addButton->setToolTip(QApplication::translate("Gui::ActionSelector", "Add", 0, QApplication::UnicodeUTF8));
     removeButton->setToolTip(QApplication::translate("Gui::ActionSelector", "Remove", 0, QApplication::UnicodeUTF8));
     upButton->setToolTip(QApplication::translate("Gui::ActionSelector", "Move up", 0, QApplication::UnicodeUTF8));
     downButton->setToolTip(QApplication::translate("Gui::ActionSelector", "Move down", 0, QApplication::UnicodeUTF8));
+#endif
 }
 
 void ActionSelector::changeEvent(QEvent* event)

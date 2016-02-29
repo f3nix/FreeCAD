@@ -43,14 +43,22 @@ Q_DECLARE_METATYPE(Base::Vector3f)
 Q_DECLARE_METATYPE(Base::Vector3d)
 Q_DECLARE_METATYPE(Base::Matrix4D)
 Q_DECLARE_METATYPE(Base::Placement)
-Q_DECLARE_METATYPE(Base::Quantity)
 Q_DECLARE_METATYPE(QList<Base::Quantity>)
+
+#ifdef Q_MOC_RUN
+Q_DECLARE_METATYPE(Base::Quantity)
+#endif
 
 namespace Gui {
 namespace Dialog { class TaskPlacement; }
 namespace PropertyEditor {
 
+#if QT_VERSION >= 0x050000
+#warning ("Warning: virtual inheritance of QObject is not supported in Qt. Removing virtual for Qt5. Will be crashing like hell.")
+class GuiExport PropertyItem : public QObject, public Base::BaseClass, public ExpressionBinding
+#else
 class GuiExport PropertyItem : virtual public QObject, public Base::BaseClass, public ExpressionBinding
+#endif
 {
     Q_OBJECT
 

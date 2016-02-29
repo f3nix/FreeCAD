@@ -28,19 +28,33 @@ set(ImageGui_MOC_HDRS
     ImageOrientationDialog.h
 )
 
-fc_wrap_cpp(ImageGui_MOC_SRCS ${ImageGui_MOC_HDRS})
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(ImageGui_MOC_SRCS ${ImageGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(ImageGui_MOC_SRCS ${ImageGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${ImageGui_MOC_SRCS})
 
 SET(ImageGui_RES_SRCS
     Resources/Image.qrc
 )
 
-qt4_add_resources(ImageGui_QRC_SRCS ${ImageGui_RES_SRCS})
+if(FREECAD_USE_QT5)
+    qt5_add_resources(ImageGui_QRC_SRCS ${ImageGui_RES_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_add_resources(ImageGui_QRC_SRCS ${ImageGui_RES_SRCS})
+endif(FREECAD_USE_QT5)
 
 set(ImageGui_UIC_SRCS
     ImageOrientationDialog.ui
 )
-qt4_wrap_ui(ImageGui_UIC_HDRS ${ImageGui_UIC_SRCS})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(ImageGui_UIC_HDRS ${ImageGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(ImageGui_UIC_HDRS ${ImageGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
 
 SET(ImageGui_SRCS
 #   ${ImageGui_MOC_SRCS}

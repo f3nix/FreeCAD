@@ -34,15 +34,30 @@ set(MeshPartGui_LIBS
 set(MeshPartGui_MOC_HDRS
     Tessellation.h
 )
-fc_wrap_cpp(MeshPartGui_MOC_SRCS ${MeshPartGui_MOC_HDRS})
+if(FREECAD_USE_QT5)
+    fc_qt5_wrap_cpp(MeshPartGui_MOC_SRCS ${MeshPartGui_MOC_HDRS})
+else(FREECAD_USE_QT5)
+    fc_wrap_cpp(MeshPartGui_MOC_SRCS ${MeshPartGui_MOC_HDRS})
+endif(FREECAD_USE_QT5)
+
 SOURCE_GROUP("Moc" FILES ${MeshPartGui_MOC_SRCS})
 
-qt4_add_resources(MeshPartGui_QRC_SRCS Resources/MeshPart.qrc)
+if(FREECAD_USE_QT5)
+    qt5_add_resources(MeshPartGui_QRC_SRCS Resources/MeshPart.qrc)
+else(FREECAD_USE_QT5)
+    qt4_add_resources(MeshPartGui_QRC_SRCS Resources/MeshPart.qrc)
+endif(FREECAD_USE_QT5)
 
 set(MeshPartGui_UIC_SRCS
     Tessellation.ui
 )
-qt4_wrap_ui(MeshPartGui_UIC_HDRS ${MeshPartGui_UIC_SRCS})
+
+if(FREECAD_USE_QT5)
+    qt5_wrap_ui(MeshPartGui_UIC_HDRS ${MeshPartGui_UIC_SRCS})
+else(FREECAD_USE_QT5)
+    qt4_wrap_ui(MeshPartGui_UIC_HDRS ${MeshPartGui_UIC_SRCS})
+endif(FREECAD_USE_QT5)
+
 
 SET(MeshPartGui_SRCS
     ${MeshPartGui_QRC_SRCS}
