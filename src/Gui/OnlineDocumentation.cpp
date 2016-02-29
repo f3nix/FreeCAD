@@ -24,13 +24,9 @@
 #include "PreCompiled.h"
 #ifndef _PreComp_
 # include <QBuffer>
-#if QT_VERSION >= 0x050000
-# include <qhttp.h>
-#else
-# include <QHttpResponseHeader>
-#endif
 # include <QMessageBox>
 # include <QTcpSocket>
+# include <QUrl>
 #endif
 
 #include <sstream>
@@ -162,8 +158,8 @@ QByteArray OnlineDocumentation::loadResource(const QString& filename) const
     }
     else {
         // load the error page
-        QHttpResponseHeader header(404, QString::fromLatin1("File not found"));
-        header.setContentType(QString::fromLatin1("text/html\r\n"
+        res.append(QLatin1String("HTTP/1.1 404 File not found\r\n"
+	    "Content-Type: text/html; charset=UTF-8\r\n"
             "\r\n"
             "<html><head><title>Error</title></head>"
             "<body bgcolor=\"#f0f0f8\">"
@@ -178,9 +174,7 @@ QByteArray OnlineDocumentation::loadResource(const QString& filename) const
             "<div><p><strong>The requested URL was not found on this server."
             "</strong></p>"
             "</div></body>"
-            "</html>"
-            "\r\n"));
-        res.append(header.toString());
+			 "</html>"));
     }
 
     return res;
@@ -322,8 +316,9 @@ QByteArray PythonOnlineHelp::loadResource(const QString& filename) const
 QByteArray PythonOnlineHelp::fileNotFound() const
 {
     QByteArray res;
-    QHttpResponseHeader header(404, QString::fromLatin1("File not found"));
-    header.setContentType(QString::fromLatin1("text/html\r\n"
+    res.append(QLatin1String("HTTP/1.1 404 File not found\r\n"
+	"Content-Type: text/html; charset=UTF-8\r\n"
+        "\r\n"
         "\r\n"
         "<html><head><title>Error</title></head>"
         "<body bgcolor=\"#f0f0f8\">"
@@ -340,7 +335,7 @@ QByteArray PythonOnlineHelp::fileNotFound() const
         "</div></body>"
         "</html>"
         "\r\n"));
-    res.append(header.toString());
+    
     return res;
 }
 
@@ -385,9 +380,9 @@ void HttpServer::readClient()
     QTcpSocket* socket = (QTcpSocket*)sender();
     if (socket->canReadLine()) {
         QString request = QString::fromLatin1(socket->readLine());
-        QHttpRequestHeader header(request);
-        if (header.method() == QLatin1String("GET")) {
-            socket->write(help.loadResource(header.path()));
+	if (request.startsWith(QLatin1String("GET "))) {
+	    QString encodedPath = request.split(QLatin1Char(' '), QString::SkipEmptyParts)[1];
+	    socket->write(help.loadResource(QUrl(encodedPath).path()));
             socket->close();
             if (socket->state() == QTcpSocket::UnconnectedState) {
                 //mark the socket for deletion but do not destroy immediately

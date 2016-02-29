@@ -6,7 +6,6 @@ include_directories(
     ${ZLIB_INCLUDE_DIR}
     ${PYTHON_INCLUDE_DIRS}
     ${XercesC_INCLUDE_DIRS}
-    ${QTHTTP_INCLUDE_DIR}
 )
 
 set(WebGui_LIBS

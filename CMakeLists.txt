@@ -714,7 +714,6 @@ if(FREECAD_USE_QT5)
            endforeach(it)
     endmacro(fc_qt5_wrap_cpp)
 
-    set(QTHTTP_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/3rdParty/qthttp/src/qhttp)
 else(FREECAD_USE_QT5)
     SET(QT_MIN_VERSION 4.5.0)
     set(QT_USE_QTNETWORK TRUE)

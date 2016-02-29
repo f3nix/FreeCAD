@@ -38,7 +38,6 @@ include_directories(
     ${QT_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIR}
     ${3DCONNEXION_INCLUDE_DIR}
-    ${QTHTTP_INCLUDE_DIR}
 )
 
 if(MSVC)
@@ -59,10 +58,6 @@ else(MSVC)
         ${3DCONNEXION_LINKFLAGS}
     )
 endif(MSVC)
-
-if(FREECAD_USE_QT5)
-    set(FreeCADGui_LIBS ${FreeCADGui_LIBS} QtHttp)
-endif(FREECAD_USE_QT5)
 
 IF(SPNAV_FOUND)
     add_definitions(-DSPNAV_FOUND)
