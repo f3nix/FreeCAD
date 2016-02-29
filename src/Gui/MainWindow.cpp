@@ -44,6 +44,9 @@
 # include <QStatusBar>
 # include <QTimer>
 # include <QToolBar>
+#if QT_VERSION >= 0x050000
+# include <QUrlQuery>
+#endif
 # include <QWhatsThis>
 #endif
 
@@ -1462,25 +1465,22 @@ void MainWindow::loadUrls(App::Document* doc, const QList<QUrl>& url)
             Gui::Dialog::DownloadManager* dm = Gui::Dialog::DownloadManager::getInstance();
             dm->download(dm->redirectUrl(*it));
         }
-//#ifndef QT_NO_OPENSSL
         else if (it->scheme().toLower() == QLatin1String("https")) {
             QUrl url = *it;
 #if QT_VERSION >= 0x050000
-            // fixme_qt5
-//            if (it->hasEncodedQueryItem(QByteArray("sid"))) {
-//                url.removeEncodedQueryItem(QByteArray("sid"));
-//                url.setScheme(QLatin1String("http"));
-//            }
+	    QUrlQuery urlq(url);
+            if (urlq.hasQueryItem(QLatin1String("sid"))) {
+                urlq.removeAllQueryItems(QLatin1String("sid"));
+                url.setQuery(urlq);
 #else
             if (it->hasEncodedQueryItem(QByteArray("sid"))) {
                 url.removeEncodedQueryItem(QByteArray("sid"));
+#endif
                 url.setScheme(QLatin1String("http"));
             }
-#endif
             Gui::Dialog::DownloadManager* dm = Gui::Dialog::DownloadManager::getInstance();
             dm->download(dm->redirectUrl(url));
         }
-//#endif
         else if (it->scheme().toLower() == QLatin1String("ftp")) {
             Gui::Dialog::DownloadManager::getInstance()->download(*it);
         }

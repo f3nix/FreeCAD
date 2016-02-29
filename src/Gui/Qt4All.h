@@ -149,9 +149,12 @@
 #include <QFtp>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
-#include <QNetworkReply> 
+#include <QNetworkReply>
 #include <QTcpServer>
 #include <QTcpSocket>
+#if QT_VERSION >= 0x050000
+#include <QUrlQuery>
+#endif
 // QtOpenGL
 #include <qgl.h>
 #if QT_VERSION >= 0x040200
