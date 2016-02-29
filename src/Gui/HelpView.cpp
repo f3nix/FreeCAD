@@ -28,7 +28,9 @@
 # include <QDropEvent>
 # include <QGroupBox>
 # include <QHBoxLayout>
-# include <QHttp>
+# include <QNetworkAccessManager>
+# include <QNetworkRequest>
+# include <QNetworkReply>
 # include <QLabel>
 # include <QMenu>
 # include <QMessageBox>
@@ -47,7 +49,7 @@
 #include "WhatsThis.h"
 #include "Action.h"
 #include "Command.h"
-
+#include "FCDeleteLater.h"
 
 using namespace Gui;
 using namespace Gui::DockWnd;
@@ -55,30 +57,31 @@ using namespace Gui::DockWnd;
 namespace Gui {
 namespace DockWnd {
 
-struct TextBrowserResources
-{
-  QUrl url;
-  int type;
-};
-
 class TextBrowserPrivate
 {
 public:
   bool bw, fw;
   int toolTipId;
   QString toolTip;
-  QHttp* http;
+  QNetworkAccessManager acc;
   QUrl source;
-  QList<TextBrowserResources> resources;
+  QByteArray sourceData;
+  QHash<QNetworkReply *, int> typeHash;
 
   TextBrowserPrivate() : bw(false), fw(false), toolTipId(0)
   {
-    http = new QHttp;
   }
   
   ~TextBrowserPrivate()
   {
-    delete http;
+    QHashIterator<QNetworkReply *, int> i(typeHash);
+    while (i.hasNext()) {
+      i.next();
+      try {
+	i.key()->abort();
+      }
+      catch (...) {}
+    }
   }
 };
 
@@ -98,9 +101,8 @@ TextBrowser::TextBrowser(QWidget * parent)
   setAcceptDrops( true );
   viewport()->setAcceptDrops( true );
 
-  connect( d->http, SIGNAL(done(bool)), this, SLOT(done(bool)));
-  connect( d->http, SIGNAL(stateChanged(int)), this, SLOT(onStateChanged(int)));
-  connect( d->http, SIGNAL(responseHeaderReceived(const QHttpResponseHeader &)), this, SLOT(onResponseHeaderReceived(const QHttpResponseHeader &)));
+  connect( &d->acc, SIGNAL(finished(QNetworkReply *)),
+	   this,   SLOT(onFinished(QNetworkReply *)));
   connect( this, SIGNAL(highlighted(const QString&)), this, SLOT(onHighlighted(const QString&)));
   connect( this, SIGNAL(backwardAvailable(bool)), this, SLOT(setBackwardAvailable(bool)));
   connect( this, SIGNAL(forwardAvailable (bool)), this, SLOT(setForwardAvailable (bool)));
@@ -111,165 +113,31 @@ TextBrowser::~TextBrowser()
   delete d;
 }
 
-QString TextBrowser::findUrl(const QUrl &name) const
-{
-  QString fileName = name.toLocalFile();
-  QFileInfo fi(fileName);
-  if (fi.isAbsolute())
-    return fileName;
-
-  QString slash(QLatin1String("/"));
-  QStringList spaths = searchPaths();
-  for (QStringList::ConstIterator it = spaths.begin(); it != spaths.end(); ++it) {
-    QString path = *it;
-    if (!path.endsWith(slash))
-      path.append(slash);
-    path.append(fileName);
-    fi.setFile(path);
-    if (fi.isReadable())
-      return path;
-  }
-
-  QUrl src = source();
-  if (src.isEmpty())
-    return fileName;
-
-  QFileInfo path(QFileInfo(src.toLocalFile()).absolutePath(), fileName);
-  return path.absoluteFilePath();
-}
-
-/**
- * Checks whether the resource data must be downloaded via http or
- * it is a file resource on the disk.
- */
-QVariant TextBrowser::loadResource ( int type, const QUrl& url )
-{
-  QString name = url.toString();
-  if (url.scheme() == QLatin1String("http") ||
-      d->source.scheme() == QLatin1String("http")) {
-    return loadHttpResource(type, url);
-  } else { // file scheme
-    return loadFileResource(type, url);
-  }
-}
-
-/**
- * Supports only rendering of local files and resources that can be downloaded over
- * the http protocol. In the latter case the download gets started.
- */
 void TextBrowser::setSource (const QUrl& url)
 {
-  bool relativeUrl = url.isRelative();
-  if (!relativeUrl)
-    d->source = url; // last set absolute url
-  QString name = url.toString();
-  if (url.scheme() == QLatin1String("http")) {
-    // start the download but do not call setSource() of the base
-    // class because we must wait until the data are available.
-    // The slot done() is invoked automatically then. 
-    d->http->setHost(url.host());
-    d->http->get(url.path(), 0);
-  } else if (d->source.scheme() == QLatin1String("http")) {
-    // relative hyperlink in previously downloaded a HTML page 
-    d->source = d->source.resolved(url);
-    d->http->get(url.path(), 0);
-  } else {
-    QUrl resolved = url;
-#if defined (Q_OS_WIN)
-    if (url.scheme() == QLatin1String("file") && !url.isRelative()) {
-      QString auth = url.authority();
-      QString path = url.path();
-      //If we click on a hyperlink with a reference to an absolute file name
-      //then we get a string that cannot be used to open the file. So we try 
-      //to reproduce the original url.
-      if (!auth.isEmpty() && !path.isEmpty()) {
-        QString fileName = auth + QLatin1Char(':') + path;
-        resolved = QUrl::fromLocalFile(fileName);
-      }
-    }
-#endif
-    QTextBrowser::setSource(resolved);
+  QUrl dest = url;
+  if (url.isRelative()) {
+    dest = d->source;
+    dest.resolved(url);
   }
+  
+  d->typeHash.insert(d->acc.get(QNetworkRequest(url)), -1);
 }
 
-/**
- * The URL \a name must be a local file and its contents is returned to the caller. If the file doesn't exist
- * an error message in HTML format or an empty image -- depending on \a type -- is returned to the caller. 
- */
-QVariant TextBrowser::loadFileResource(int type, const QUrl& name)
+/* The requested resource is either the source url or resource
+   The function should only be called with the source url after
+   the source url has been successfully downloaded and is stored
+   in d->sourceReply.  This is ensured by delaying the call to
+   QTextBrowser::setSource() until the finished signal is received */
+QVariant TextBrowser::loadResource ( int type, const QUrl& url )
 {
-  QVariant data;
-  QUrl resolved = name;
-  if (!QFileInfo(name.toLocalFile()).isAbsolute() && QFileInfo(d->source.toLocalFile()).isAbsolute())
-    resolved = d->source.resolved(name);
-  QString fileName = findUrl(resolved);
-  QFile file(fileName);
-  if (file.open(QFile::ReadOnly)) {
-    data = file.readAll();
-    file.close();
-  } else if (type == QTextDocument::HtmlResource) {
-      data = QString::fromLatin1(
-      "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\">"
-      "<html>"
-      "<head>"
-      "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-16\">"
-      "<title>Error</title>"
-      "</head>"
-      "<body>"
-      "<h1>%1</h1>"
-      "<div><p><strong>%2</strong></p>"
-      "</div></body>"
-      "</html>").arg(tr("Could not open file.")).arg(tr("You tried to access the address %1 which is currently unavailable. "
-      "Please make sure that the URL exists and try reloading the page.").arg(name.toString()));
-  } else if (type == QTextDocument::ImageResource) {
-    static const char * empty_xpm[] = {
-          "24 24 1 1",
-          ". c #C0C0C0",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................",
-          "........................"};
-    QPixmap px(empty_xpm);
-    data.setValue<QPixmap>(px);
-  }
-
-  return data;
-}
-
-/**
- * Returns the downloaded resource to the caller. In case the resource contains
- * references to further resources (e.g. referenced images in HTML text) we store
- * the URLs in a list and start the download afterwards.
- */
-QVariant TextBrowser::loadHttpResource(int type, const QUrl& name)
-{
+  if (url == d->source)
+    return QVariant(d->sourceData);
+  
+  d->typeHash.insert(d->acc.get(QNetworkRequest(url)), type);
+  
   QVariant data;
   if (type == QTextDocument::ImageResource) {
-    TextBrowserResources res;
-    res.url = name;
-    res.type = type;
-    d->resources.push_back(res);
-    
     static const char * empty_xpm[] = {
           "24 24 1 1",
           ". c #C0C0C0",
@@ -299,14 +167,8 @@ QVariant TextBrowser::loadHttpResource(int type, const QUrl& name)
           "........................"};
     QPixmap px(empty_xpm);
     data.setValue<QPixmap>(px);
-    return data;
-  }
-
-  if (d->http->error() == QHttp::NoError) {
-    return d->http->readAll();
-  } else {
-    if (type == QTextDocument::HtmlResource) {
-        data = QString::fromLatin1(
+  } else if (type == QTextDocument::HtmlResource) {
+    data = QString::fromLatin1(
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\">"
         "<html>"
         "<head>"
@@ -314,79 +176,43 @@ QVariant TextBrowser::loadHttpResource(int type, const QUrl& name)
         "<title>Error</title>"
         "</head>"
         "<body>"
-        "<h1>%1</h1>"
+        "<h1>Error</h1>"
         "<div><p><strong>%2</strong></p>"
         "</div></body>"
-        "</html>").arg(d->http->errorString()).arg(tr("You tried to access the address %1 which is currently unavailable. "
-        "Please make sure that the URL exists and try reloading the page.").arg(name.toString()));
-    }
+        "</html>").arg(tr("You tried to access the address %1 which is currently unavailable. "
+	"Please make sure that the URL exists and try reloading the page.").arg(url.toString()));
   }
-
+  
   return data;
 }
 
 /**
  * The download has finished. We add the resource to the document now.
  */
-void TextBrowser::done( bool /*err*/ )
+void TextBrowser::onFinished( QNetworkReply *rp )
 {
-  if (d->resources.isEmpty()/* && d->requestId == d->http->currentId()*/) {
-    // set the HTML text
+  FCDeleteLater rpdel(rp); // Delete rp when function leaves scope
+  
+  if (!d->typeHash.contains(rp))
+    return;
+  
+  int type = d->typeHash.value(rp);
+  d->typeHash.remove(rp);
+  
+  if (!rp || rp->error() != QNetworkReply::NoError)
+    return;
+  
+  if (type == -1) {
+    // Set the source.  This will cause a call to load_resource with the
+    // source url
+    d->source = rp->request().url();
+    d->sourceData = rp->readAll();
     QTextBrowser::setSource(d->source);
   } else {
     // add the referenced resource to the document
-    TextBrowserResources res = d->resources.front();
-
-    QVariant data(d->http->readAll());
-    document()->addResource(res.type, res.url, data);
+    QVariant data(rp->readAll());
+    document()->addResource(type, rp->request().url(), data);
     viewport()->repaint();
-    d->resources.pop_front();
-  }
-
-  // if we need to download further resources start a http request
-  if (!d->resources.isEmpty()) {
-    TextBrowserResources res = d->resources.front();
-    d->http->get(res.url.toString());
-  } else {
-    stateChanged(d->source.toString());
-  }
-}
-
-/**
- * Prints some status information.
- */
-void TextBrowser::onStateChanged ( int state )
-{
-  switch (state) {
-    case QHttp::Connecting:
-      stateChanged(tr("Connecting to %1").arg(d->source.host()));
-      break;
-    case QHttp::Sending:
-      stateChanged(tr("Sending to %1").arg(d->source.host()));
-      break;
-    case QHttp::Reading:
-      stateChanged(tr("Reading from %1").arg(d->source.host()));
-      break;
-    case QHttp::Closing:
-    case QHttp::Unconnected:
-      if (d->http->error() == QHttp::NoError)
-        stateChanged(d->source.toString());
-      else
-        stateChanged(d->http->errorString());
-      break;
-    default:
-      break;
-  }
-}
-
-/**
- * Checks for the status code and aborts the request if needed.
- */
-void TextBrowser::onResponseHeaderReceived(const QHttpResponseHeader &responseHeader)
-{
-  if (responseHeader.statusCode() != 200) {
-    stateChanged(tr("Download failed: %1.").arg(responseHeader.reasonPhrase()));
-    d->http->abort();
   }
 }
 
@@ -532,7 +358,6 @@ void TextBrowser::dragMoveEvent( QDragMoveEvent *e )
   else
     e->ignore();
 }
-
 
 // --------------------------------------------------------------------
 

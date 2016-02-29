@@ -24,9 +24,9 @@
 #include "PreCompiled.h"
 #ifndef _PreComp_
 # include <QBuffer>
-# include <QHttpResponseHeader>
 # include <QMessageBox>
 # include <QTcpSocket>
+# include <QUrl>
 #endif
 
 #include <sstream>
@@ -142,7 +142,7 @@ QByteArray OnlineDocumentation::loadResource(const QString& filename) const
         res.append(header);
     }
     else if (this->files.contains(fn)) {
-        // load the requested page from zip 
+        // load the requested page from zip
         std::string path = App::GetApplication().getHomePath();
         path += "/doc/docs.zip";
         zipios::ZipFile zip(path);
@@ -158,8 +158,8 @@ QByteArray OnlineDocumentation::loadResource(const QString& filename) const
     }
     else {
         // load the error page
-        QHttpResponseHeader header(404, QString::fromLatin1("File not found"));
-        header.setContentType(QString::fromLatin1("text/html\r\n"
+        res.append(QLatin1String("HTTP/1.1 404 File not found\r\n"
+            "Content-Type: text/html; charset=UTF-8\r\n"
             "\r\n"
             "<html><head><title>Error</title></head>"
             "<body bgcolor=\"#f0f0f8\">"
@@ -174,9 +174,7 @@ QByteArray OnlineDocumentation::loadResource(const QString& filename) const
             "<div><p><strong>The requested URL was not found on this server."
             "</strong></p>"
             "</div></body>"
-            "</html>"
-            "\r\n"));
-        res.append(header.toString());
+                         "</html>"));
     }
 
     return res;
@@ -287,7 +285,7 @@ QByteArray PythonOnlineHelp::loadResource(const QString& filename) const
         PyObject* main = PyImport_AddModule("__main__");
         PyObject* dict = PyModule_GetDict(main);
         dict = PyDict_Copy(dict);
-        QByteArray cmd = 
+        QByteArray cmd =
             "import pydoc\n"
             "object, name = pydoc.resolve(\"";
         cmd += name.toUtf8();
@@ -318,8 +316,9 @@ QByteArray PythonOnlineHelp::loadResource(const QString& filename) const
 QByteArray PythonOnlineHelp::fileNotFound() const
 {
     QByteArray res;
-    QHttpResponseHeader header(404, QString::fromLatin1("File not found"));
-    header.setContentType(QString::fromLatin1("text/html\r\n"
+    res.append(QLatin1String("HTTP/1.1 404 File not found\r\n"
+        "Content-Type: text/html; charset=UTF-8\r\n"
+        "\r\n"
         "\r\n"
         "<html><head><title>Error</title></head>"
         "<body bgcolor=\"#f0f0f8\">"
@@ -336,7 +335,7 @@ QByteArray PythonOnlineHelp::fileNotFound() const
         "</div></body>"
         "</html>"
         "\r\n"));
-    res.append(header.toString());
+
     return res;
 }
 
@@ -376,14 +375,14 @@ void HttpServer::readClient()
         return;
 
     // This slot is called when the client sent data to the server. The
-    // server looks if it was a GET request and  sends back the 
+    // server looks if it was a GET request and  sends back the
     // corresponding HTML document from the ZIP file.
     QTcpSocket* socket = (QTcpSocket*)sender();
     if (socket->canReadLine()) {
         QString request = QString::fromLatin1(socket->readLine());
-        QHttpRequestHeader header(request);
-        if (header.method() == QLatin1String("GET")) {
-            socket->write(help.loadResource(header.path()));
+        if (request.startsWith(QLatin1String("GET "))) {
+            QString encodedPath = request.split(QLatin1Char(' '), QString::SkipEmptyParts)[1];
+            socket->write(help.loadResource(QUrl(encodedPath).path()));
             socket->close();
             if (socket->state() == QTcpSocket::UnconnectedState) {
                 //mark the socket for deletion but do not destroy immediately
@@ -430,12 +429,12 @@ void StdCmdPythonHelp::activated(int iMsg)
         this->server = new HttpServer();
 
     // if server is not yet running try to open one
-    if (this->server->isListening() || 
+    if (this->server->isListening() ||
         this->server->listen(QHostAddress(QHostAddress::LocalHost), port)) {
         // okay the server is running, now we try to open the system internet browser
         bool failed = true;
 
-        // The webbrowser Python module allows to start the system browser in an 
+        // The webbrowser Python module allows to start the system browser in an
         // OS-independent way
         Base::PyGILStateLocker lock;
         PyObject* module = PyImport_ImportModule("webbrowser");
@@ -450,7 +449,7 @@ void StdCmdPythonHelp::activated(int iMsg)
                 PyObject* result = PyEval_CallObject(func,args);
                 if (result)
                     failed = false;
-        
+
                 // decrement the args and module reference
                 Py_XDECREF(result);
                 Py_DECREF(args);
@@ -460,13 +459,13 @@ void StdCmdPythonHelp::activated(int iMsg)
 
         // print error message on failure
         if (failed) {
-            QMessageBox::critical(Gui::getMainWindow(), QObject::tr("No Browser"), 
+            QMessageBox::critical(Gui::getMainWindow(), QObject::tr("No Browser"),
                 QObject::tr("Unable to open your browser.\n\n"
                 "Please open a browser window and type in: http://localhost:%1.").arg(port));
         }
     }
     else {
-        QMessageBox::critical(Gui::getMainWindow(), QObject::tr("No Server"), 
+        QMessageBox::critical(Gui::getMainWindow(), QObject::tr("No Server"),
             QObject::tr("Unable to start the server to port %1: %2.").arg(port).arg(server->errorString()));
     }
 }
@@ -486,21 +485,21 @@ bool Gui::OpenURLInBrowser(const char * URL)
             PyObject* result = PyEval_CallObject(func,args);
             if (result)
                 failed = false;
-        
+
             // decrement the args and module reference
             Py_XDECREF(result);
             Py_DECREF(args);
             Py_DECREF(module);
         }
-    } 
+    }
 
     // print error message on failure
     if (failed) {
-        QMessageBox::critical(Gui::getMainWindow(), QObject::tr("No Browser"), 
+        QMessageBox::critical(Gui::getMainWindow(), QObject::tr("No Browser"),
             QObject::tr("Unable to open your system browser."));
         return false;
     }
-  
+
     return true;
 }
 
