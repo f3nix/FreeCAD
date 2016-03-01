@@ -27,10 +27,7 @@
 #include <QAbstractSpinBox>
 #include <Base/Quantity.h>
 #include "ExpressionBinding.h"
-
-#ifdef Q_MOC_RUN
-Q_DECLARE_METATYPE(Base::Quantity)
-#endif
+#include "propertyeditor/PropertyItem.h"
 
 namespace Gui {
 
