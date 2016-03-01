@@ -104,7 +104,7 @@ void DownloadDialog::downloadFile()
         file = 0;
         return;
     }
-    
+
     httpRequestAborted = false;
     QNetworkRequest req(url);
     reply = acc->get(req);
@@ -128,7 +128,7 @@ void DownloadDialog::cancelDownload()
 void DownloadDialog::httpRequestFinished(QNetworkReply *rp)
 {
     FCDeleteLater rpdel(rp);
-  
+
     if (httpRequestAborted) {
         if (file) {
             file->close();

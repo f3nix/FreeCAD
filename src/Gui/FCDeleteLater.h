@@ -33,7 +33,7 @@ public:
   {
     obj = object;
   }
-  
+
   ~FCDeleteLater()
   {
     if (obj)

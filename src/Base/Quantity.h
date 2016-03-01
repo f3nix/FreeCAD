@@ -26,6 +26,7 @@
 
 #include "Unit.h"
 #include <QString>
+#include <QMetaType>
 
 #ifndef  DOUBLE_MAX
 # define DOUBLE_MAX 1.7976931348623157E+308    /* max decimal value of a "double"*/
@@ -188,5 +189,7 @@ protected:
 };
 
 } // namespace Base
+
+Q_DECLARE_METATYPE(Base::Quantity)
 
 #endif // BASE_Quantity_H

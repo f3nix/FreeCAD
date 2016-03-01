@@ -32,11 +32,11 @@
 # include <QNetworkRequest>
 # include <QNetworkReply>
 #endif
-#endif
 
 #include "DlgTipOfTheDayImp.h"
 #include "Application.h"
 #include "MainWindow.h"
+#include "FCDeleteLater.h"
 
 #include <Base/Parameter.h>
 #include <Base/Console.h>
@@ -63,13 +63,13 @@ DlgTipOfTheDayImp::DlgTipOfTheDayImp( QWidget* parent, Qt::WindowFlags fl )
     setupUi(this);
 
     connect(&_acc, SIGNAL(finished(QNetworkReply *)),
-	    this, SLOT(onFinished(QNetworkReply *)));
+            this, SLOT(onFinished(QNetworkReply *)));
 
     bool tips = getWindowParameter()->GetBool("Tipoftheday", true);
     checkShowTips->setChecked(tips);
 
     // Since the resize mode of DlgTipOfTheDayBase does not
-    // work properly so set this by hand 
+    // work properly so set this by hand
     setMinimumSize(QSize(320, 250));
     layout()->setSizeConstraint( QLayout::SetNoConstraint );
 
@@ -107,13 +107,13 @@ void DlgTipOfTheDayImp::reload()
 void DlgTipOfTheDayImp::onFinished(QNetworkReply *rp)
 {
     FCDeleteLater rpdel(rp);
-    
+
     if (!rp || rp != _reply || rp->error() != QNetworkReply::NoError)
       return;
-    
+
     // get the page and search for the tips section
     QString text = QString::fromLatin1(rp->readAll());
-    
+
     QRegExp rx(QLatin1String("<p>You find the latest information.+<div class=\"printfooter\">"));
     if (rx.indexIn(text) > -1) {
         // the text of interest

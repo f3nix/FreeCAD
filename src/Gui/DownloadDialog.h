@@ -43,7 +43,7 @@ namespace Gui {
 namespace Dialog {
 
  /** Download a resource (file) from the web to a location on the disk
- * 
+ *
  */
 
 class GuiExport DownloadDialog : public QDialog

@@ -713,7 +713,6 @@ if(FREECAD_USE_QT5)
                add_file_dependencies(${it} ${outfile})
            endforeach(it)
     endmacro(fc_qt5_wrap_cpp)
-
 else(FREECAD_USE_QT5)
     SET(QT_MIN_VERSION 4.5.0)
     set(QT_USE_QTNETWORK TRUE)
