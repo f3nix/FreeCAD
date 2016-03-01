@@ -6,7 +6,6 @@ include_directories(
     ${ZLIB_INCLUDE_DIR}
     ${PYTHON_INCLUDE_DIRS}
     ${XercesC_INCLUDE_DIRS}
-    ${QTHTTP_INCLUDE_DIR}
 )
 
 set(WebGui_LIBS
@@ -56,3 +55,11 @@ SET_BIN_DIR(WebGui WebGui /Mod/Web)
 SET_PYTHON_PREFIX_SUFFIX(WebGui)
 
 INSTALL(TARGETS WebGui DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+SET(WebGuiIcon_SVG
+    Resources/icons/WebWorkbench.svg
+)
+
+fc_copy_sources(WebGui "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_DATADIR}/Mod/Web" ${WebGuiIcon_SVG})
+
+INSTALL(FILES ${WebGuiIcon_SVG} DESTINATION "${CMAKE_INSTALL_DATADIR}/Mod/Web/Resources/icons")

@@ -25,11 +25,13 @@
 #ifndef _PreComp_
 # include <QPushButton>
 # include <QHBoxLayout>
+# include <QAuthenticator>
+# include <QNetworkRequest>
 #endif
 
-#include <QAuthenticator>
 #include "DownloadDialog.h"
 #include "ui_DlgAuthorization.h"
+#include "FCDeleteLater.h"
 
 using namespace Gui::Dialog;
 
@@ -52,16 +54,13 @@ DownloadDialog::DownloadDialog(const QUrl& url, QWidget *parent)
     buttonBox->addButton(cancelButton, QDialogButtonBox::RejectRole);
     cancelButton->hide();
 
-    http = new QHttp(this);
+    acc = new QNetworkAccessManager;
+    reply = NULL;
 
-    connect(http, SIGNAL(requestFinished(int, bool)),
-            this, SLOT(httpRequestFinished(int, bool)));
-    connect(http, SIGNAL(dataReadProgress(int, int)),
-            this, SLOT(updateDataReadProgress(int, int)));
-    connect(http, SIGNAL(responseHeaderReceived(const QHttpResponseHeader &)),
-            this, SLOT(readResponseHeader(const QHttpResponseHeader &)));
-    connect(http, SIGNAL(authenticationRequired(const QString &, quint16, QAuthenticator *)),
-            this, SLOT(slotAuthenticationRequired(const QString &, quint16, QAuthenticator *)));
+    connect(acc,  SIGNAL(finished(QNetworkReply *)),
+            this, SLOT(httpRequestFinished(QNetworkReply *)));
+    connect(acc,  SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)),
+            this, SLOT(slotAuthenticationRequired(QNetworkReply *, QAuthenticator *)));
     connect(downloadButton, SIGNAL(clicked()), this, SLOT(downloadFile()));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(cancelDownload()));
     connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -80,6 +79,7 @@ DownloadDialog::DownloadDialog(const QUrl& url, QWidget *parent)
 
 DownloadDialog::~DownloadDialog()
 {
+  delete acc;
 }
 
 void DownloadDialog::downloadFile()
@@ -105,18 +105,11 @@ void DownloadDialog::downloadFile()
         return;
     }
 
-    QHttp::ConnectionMode mode = url.scheme().toLower() == QLatin1String("https")
-        ? QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp;
-    http->setHost(url.host(), mode, url.port() == -1 ? 80 : url.port());
-    
-    if (!url.userName().isEmpty())
-        http->setUser(url.userName(), url.password());
-
     httpRequestAborted = false;
-    QByteArray path = QUrl::toPercentEncoding(url.path(), "!$&'()*+,;=:@/");
-    if (path.isEmpty())
-        path = "/";
-    httpGetId = http->get(QString::fromLatin1(path), file);
+    QNetworkRequest req(url);
+    reply = acc->get(req);
+    connect(reply, SIGNAL(dataReadProgress(int, int)),
+            this,  SLOT(updateDataReadProgress(int, int)));
 
     statusLabel->setText(tr("Downloading %1.").arg(fileName));
     downloadButton->setEnabled(false);
@@ -128,14 +121,14 @@ void DownloadDialog::cancelDownload()
 {
     statusLabel->setText(tr("Download canceled."));
     httpRequestAborted = true;
-    http->abort();
+    reply->abort();
     close();
 }
 
-void DownloadDialog::httpRequestFinished(int requestId, bool error)
+void DownloadDialog::httpRequestFinished(QNetworkReply *rp)
 {
-    if (requestId != httpGetId)
-        return;
+    FCDeleteLater rpdel(rp);
+
     if (httpRequestAborted) {
         if (file) {
             file->close();
@@ -148,17 +141,14 @@ void DownloadDialog::httpRequestFinished(int requestId, bool error)
         return;
     }
 
-    if (requestId != httpGetId)
-        return;
-
     progressBar->hide();
     file->close();
 
-    if (error) {
+    if (rp->error() != QNetworkReply::NoError) {
         file->remove();
         QMessageBox::information(this, tr("Download"),
                                  tr("Download failed: %1.")
-                                 .arg(http->errorString()));
+                                 .arg(rp->errorString()));
     }
     else {
         QString fileName = QFileInfo(url.path()).fileName();
@@ -172,27 +162,6 @@ void DownloadDialog::httpRequestFinished(int requestId, bool error)
     file = 0;
 }
 
-void DownloadDialog::readResponseHeader(const QHttpResponseHeader &responseHeader)
-{
-    switch (responseHeader.statusCode()) {
-    case 200:                   // Ok
-    case 301:                   // Moved Permanently
-    case 302:                   // Found
-    case 303:                   // See Other
-    case 307:                   // Temporary Redirect
-        // these are not error conditions
-        break;
-
-    default:
-        QMessageBox::information(this, tr("Download"),
-                                 tr("Download failed: %1.")
-                                 .arg(responseHeader.reasonPhrase()));
-        httpRequestAborted = true;
-        progressBar->hide();
-        http->abort();
-    }
-}
-
 void DownloadDialog::updateDataReadProgress(int bytesRead, int totalBytes)
 {
     if (httpRequestAborted)
@@ -202,13 +171,13 @@ void DownloadDialog::updateDataReadProgress(int bytesRead, int totalBytes)
     progressBar->setValue(bytesRead);
 }
 
-void DownloadDialog::slotAuthenticationRequired(const QString &hostName, quint16, QAuthenticator *authenticator)
+void DownloadDialog::slotAuthenticationRequired(QNetworkReply *rp, QAuthenticator *authenticator)
 {
     QDialog dlg;
     Ui_DlgAuthorization ui;
     ui.setupUi(&dlg);
     dlg.adjustSize();
-    ui.siteDescription->setText(tr("%1 at %2").arg(authenticator->realm()).arg(hostName));
+    ui.siteDescription->setText(tr("%1 at %2").arg(authenticator->realm()).arg(rp->url().host()));
 
     if (dlg.exec() == QDialog::Accepted) {
         authenticator->setUser(ui.username->text());

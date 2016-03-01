@@ -26,7 +26,7 @@
 #include <cfloat>
 #include <QDialog>
 #include <QMessageBox>
-#include <QApplication> 
+#include <QApplication>
 
 #include <Gui/propertyeditor/PropertyItem.h>
 
@@ -36,6 +36,7 @@ class QDoubleSpinBox;
 class QComboBox;
 
 namespace Gui {
+class QuantitySpinBox;
 
 class GuiExport LocationWidget : public QWidget
 {
@@ -65,9 +66,9 @@ private:
     QLabel *yLabel;
     QLabel *zLabel;
     QLabel *dLabel;
-    QDoubleSpinBox *xValue;
-    QDoubleSpinBox *yValue;
-    QDoubleSpinBox *zValue;
+    QuantitySpinBox *xValue;
+    QuantitySpinBox *yValue;
+    QuantitySpinBox *zValue;
     QComboBox *dValue;
 };
 
@@ -172,9 +173,9 @@ public:
 
     Base::Vector3d getPosition() const
     {
-        return Base::Vector3d(this->xPos->value(),
-                              this->yPos->value(),
-                              this->zPos->value());
+        return Base::Vector3d(this->xPos->value().getValue(),
+                              this->yPos->value().getValue(),
+                              this->zPos->value().getValue());
     }
 
     Base::Vector3d getDirection() const
@@ -318,9 +319,9 @@ public:
 
     Base::Vector3d getPosition() const
     {
-        return Base::Vector3d(this->xPos->value(),
-                              this->yPos->value(),
-                              this->zPos->value());
+        return Base::Vector3d(this->xPos->value().getValue(),
+                              this->yPos->value().getValue(),
+                              this->zPos->value().getValue());
     }
 
     Base::Vector3d getDirection() const
