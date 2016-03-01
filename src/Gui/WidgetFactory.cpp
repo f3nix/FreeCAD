@@ -537,39 +537,17 @@ Py::Object PySideUicModule::loadUi(const Py::Tuple& args)
 
     QString cmd;
     QTextStream str(&cmd);
-#if 0
-    // https://github.com/lunaryorn/snippets/blob/master/qt4/designer/pyside_dynamic.py
-    str << "from PySide import QtCore, QtGui, QtUiTools\n"
-        << "import FreeCADGui"
-        << "\n"
-        << "class UiLoader(QtUiTools.QUiLoader):\n"
-        << "    def __init__(self, baseinstance):\n"
-        << "        QtUiTools.QUiLoader.__init__(self, baseinstance)\n"
-        << "        self.baseinstance = baseinstance\n"
-        << "        self.ui = FreeCADGui.UiLoader()\n"
-        << "\n"
-        << "    def createWidget(self, class_name, parent=None, name=''):\n"
-        << "        if parent is None and self.baseinstance:\n"
-        << "            return self.baseinstance\n"
-        << "        else:\n"
-        << "            widget = self.ui.createWidget(class_name, parent, name)\n"
-        << "            if not widget:\n"
-        << "                widget = QtUiTools.QUiLoader.createWidget(self, class_name, parent, name)\n"
-        << "            if self.baseinstance:\n"
-        << "                setattr(self.baseinstance, name, widget)\n"
-        << "            return widget\n"
-        << "\n"
-        << "loader = UiLoader(globals()[\"base_\"])\n"
-        << "widget = loader.load(globals()[\"uiFile_\"])\n"
-        << "\n";
-#else
     str << "from PySide import QtCore, QtGui\n"
         << "import FreeCADGui"
         << "\n"
         << "loader = FreeCADGui.UiLoader()\n"
         << "widget = loader.load(globals()[\"uiFile_\"])\n"
-        << "\n";
+#ifndef HAVE_PYSIDE
+        << "for child in widget.findChildren(QtCore.QObject):\n"
+        << "    if child.objectName():\n"
+        << "        setattr(widget, child.objectName(), child)\n"
 #endif
+        << "\n";
 
     PyObject* result = PyRun_String((const char*)cmd.toLatin1(), Py_file_input, d.ptr(), d.ptr());
     if (result) {
